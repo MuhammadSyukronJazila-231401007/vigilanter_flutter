@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'signin.dart';
+import 'package:go_router/go_router.dart';
+import '../config/router.dart'; // pastikan ini mengarah ke file router kamu
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -13,12 +14,12 @@ class _SplashState extends State<Splash> {
   @override
   void initState() {
     super.initState();
-    // Splash tampil 3 detik, lalu ke Signin
+
+    // Setelah 3 detik, pindah ke halaman Signin
     Timer(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const Signin()),
-      );
+      if (mounted) {
+        context.go(AppRoutes.signin);
+      }
     });
   }
 
@@ -56,6 +57,8 @@ class _SplashState extends State<Splash> {
                 "Vigilance in your hand",
                 style: TextStyle(
                   color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),

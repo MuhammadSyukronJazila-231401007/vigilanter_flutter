@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vigilanter_flutter/config/router.dart';
 import 'package:vigilanter_flutter/screens/register.dart';
 import '../theme/app_colors.dart';
 
@@ -157,7 +159,9 @@ class _SigninState extends State<Signin> {
                 width: double.infinity,
                 height: screenHeight * 0.053,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.go(AppRoutes.home);
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.kuningVigilanter,
                     foregroundColor: Colors.black,
