@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vigilanter_flutter/screens/register.dart';
 import '../theme/app_colors.dart';
 
 class Signin extends StatefulWidget {
@@ -180,7 +181,7 @@ class _SigninState extends State<Signin> {
       ),
 
       bottomNavigationBar: Padding(
-        padding: EdgeInsets.only(bottom: screenHeight * 0.03),
+        padding: EdgeInsets.only(bottom: screenHeight * 0.07),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -191,17 +192,25 @@ class _SigninState extends State<Signin> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            Text(
-              "Buat akun baru",
-              style: TextStyle(
-                color: AppColors.kuningVigilanter,
-                fontWeight: FontWeight.bold,
-                fontSize: screenWidth * 0.038,
-                decoration: TextDecoration.underline,
-                decorationColor: AppColors.kuningVigilanter,
-                decorationThickness: 1.2,
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Register()),
+                );
+              },
+              child: Text(
+                "Buat akun baru",
+                style: TextStyle(
+                  color: AppColors.kuningVigilanter,
+                  fontWeight: FontWeight.bold,
+                  fontSize: screenWidth * 0.038,
+                  decoration: TextDecoration.underline,
+                  decorationColor: AppColors.kuningVigilanter,
+                  decorationThickness: 1.2,
+                ),
               ),
-            ),
+            )
           ],
         ),
       ),
