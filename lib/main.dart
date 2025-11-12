@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tugas_per2/screens/signin.dart';
+import 'package:vigilanter_flutter/screens/signin.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tugas_per2/screens/splash.dart';
+import 'package:vigilanter_flutter/screens/splash.dart';
 
 void main() {
   runApp(const App());
