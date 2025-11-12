@@ -36,7 +36,7 @@ class _RegisterState extends State<Register> {
                 style: TextStyle(
                   fontSize: screenWidth * (isLargeScreen ? 0.06 : 0.08),
                   color: Colors.white,
-                  fontWeight: FontWeight.w900, // paling tebal
+                  fontWeight: FontWeight.w800, // paling tebal
                 ),
               ),
 
@@ -205,8 +205,8 @@ class _RegisterState extends State<Register> {
                   child: Text(
                     'Buat Akun',
                     style: TextStyle(
-                      fontSize: screenWidth * 0.045,
-                      fontWeight: FontWeight.w900,
+                      fontSize: screenWidth * 0.04,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

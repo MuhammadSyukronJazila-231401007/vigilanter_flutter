@@ -36,7 +36,7 @@ class _SigninState extends State<Signin> {
                   style: TextStyle(
                     fontSize: screenWidth * (isLargeScreen ? 0.06 : 0.08),
                     color: Colors.white,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
@@ -169,8 +169,8 @@ class _SigninState extends State<Signin> {
                   child: Text(
                     'Login',
                     style: TextStyle(
-                      fontSize: screenWidth * 0.045,
-                      fontWeight: FontWeight.w900,
+                      fontSize: screenWidth * 0.04,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:vigilanter_flutter/screens/splash.dart';
 
 void main() {
@@ -12,14 +11,16 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter',
       theme: ThemeData(
-        textTheme: GoogleFonts.poppinsTextTheme(), // semua text pakai Poppins
+        fontFamily: 'Poppins',
+        useMaterial3: true,
       ),
-      home: Splash(),
+      home: const Splash(),
       debugShowCheckedModeBanner: false,
     );
   }
+
 }
 
 
