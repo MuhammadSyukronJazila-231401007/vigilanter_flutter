@@ -189,7 +189,7 @@ class HomeScreen extends StatelessWidget {
                   },
                   child: Image.asset(
                     "assets/images/tombol_lapor.png",
-                    width: screenWidth * 0.55,
+                    width: screenWidth * 0.6,
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -202,7 +202,7 @@ class HomeScreen extends StatelessWidget {
                   },
                   child: Image.asset(
                     "assets/images/tombol_panggil.png",
-                    width: screenWidth * 0.55,
+                    width: screenWidth * 0.6,
                     fit: BoxFit.contain,
                   ),
                 ),

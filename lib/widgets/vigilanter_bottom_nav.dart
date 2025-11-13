@@ -92,7 +92,7 @@ class _VigilanterBottomNavState extends State<VigilanterBottomNav>
 
           // Lingkaran kuning aktif (lebih tenggelam ke navbar)
           Positioned(
-            bottom: navHeight - (circleRadius * 0.8), // ↓ lebih ke bawah lagi
+            bottom: navHeight - (circleRadius * 1), // ↓ lebih ke bawah lagi
             left: animatedCenter - circleRadius,
             child: AnimatedBuilder(
               animation: _controller,
@@ -120,7 +120,7 @@ class _VigilanterBottomNavState extends State<VigilanterBottomNav>
                       ),
                       child: Icon(
                         items[widget.currentIndex].icon,
-                        size: circleDiameter * 0.7, // sedikit lebih besar
+                        size: circleDiameter * 0.65, // sedikit lebih besar
                         color: Colors.black,
                       ),
                     ),
@@ -203,8 +203,8 @@ class _NavBarPainter extends CustomPainter {
     final Path path = Path();
 
     // Kendali kedalaman & lebar
-    final double depthFactor = 2.2; // semakin besar → semakin dalam
-    final double widthFactor = 1.5; // semakin besar → semakin lebar
+    final double depthFactor = 2.8; // semakin besar → semakin dalam
+    final double widthFactor = 1.8; // semakin besar → semakin lebar
     final double radius = circleRadius * depthFactor;
 
     final double left = centerX - circleRadius * widthFactor;
