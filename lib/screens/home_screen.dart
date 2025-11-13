@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vigilanter_flutter/services/dialog_service.dart';
 import '../theme/app_colors.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -196,17 +197,25 @@ class HomeScreen extends StatelessWidget {
 
                 SizedBox(height: screenHeight * 0.03),
 
-                GestureDetector(
-                  onTap: () {
-                    // TODO: Handle Panggil
-                  },
-                  child: Image.asset(
-                    "assets/images/tombol_panggil.png",
-                    width: screenWidth * 0.6,
-                    fit: BoxFit.contain,
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(100),
+                    splashColor: Colors.white.withOpacity(0.3),
+                    onTap: () {
+                      DialogService.showEmergencyPopup(context);
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Image.asset(
+                        "assets/images/tombol_panggil.png",
+                        width: screenWidth * 0.6,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
                   ),
                 ),
-
+                
                 SizedBox(height: screenHeight * 0.1),
               ],
             ),

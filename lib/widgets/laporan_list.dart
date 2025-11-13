@@ -180,13 +180,13 @@ class ReportCard extends StatelessWidget {
                 Icon(
                   Icons.location_on,
                   color: Colors.white,
-                  size: iconSize * 0.8,
+                  size: iconSize * 0.85,
                 ),
                 SizedBox(width: cardPadding / 1.5),
                 Expanded(
                   child: Text(
                     laporan.lokasi,
-                    style: TextStyle(color: Colors.white70, fontSize: subFontSize),
+                    style: TextStyle(color: Colors.white70, fontSize: subFontSize * 1.05),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -197,13 +197,13 @@ class ReportCard extends StatelessWidget {
                 Icon(
                   Icons.calendar_today,
                   color: Colors.white,
-                  size: iconSize * 0.8,
+                  size: iconSize * 0.85,
                 ),
                 SizedBox(width: cardPadding / 1.5),
                 Expanded(
                   child: Text(
                     laporan.tanggal,
-                    style: TextStyle(color: Colors.white70, fontSize: subFontSize),
+                    style: TextStyle(color: Colors.white70, fontSize: subFontSize * 1.05),
                   ),
                 ),
                 if (showBatalkan)
