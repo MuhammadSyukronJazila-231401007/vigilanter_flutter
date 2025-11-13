@@ -41,6 +41,14 @@ GoRouter createRouter() {
         path: AppRoutes.register,
         builder: (context, state) => const Register(),
       ),
+      GoRoute(
+        path: AppRoutes.setting,
+        builder: (context, state) => const SettingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.deskripsiLaporan,
+        builder: (context, state) => const DetailLaporan(),
+      ),
 
       // Shell dengan bottom nav
       StatefulShellRoute.indexedStack(
