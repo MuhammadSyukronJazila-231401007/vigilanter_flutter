@@ -6,12 +6,211 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: AppColors.biruVigilanter,
-      body: const Center(
-        child: Text(
-          "Halaman Beranda",
-          style: TextStyle(color: Colors.white, fontSize: 18),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+            child: Column(
+              children: [
+                SizedBox(height: screenHeight * 0.03),
+
+                // ===== Card User Info =====
+                Card(
+                  color: AppColors.biruGelap,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(screenWidth * 0.035),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(screenWidth * 0.04),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Avatar user
+                        Container(
+                          width: screenWidth * 0.115,
+                          height: screenWidth * 0.115,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.person,
+                              color: Colors.black,
+                              size: screenWidth * 0.095, // proporsional (85%)
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: screenWidth * 0.035),
+
+                        // User info
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(left: screenWidth * 0.005),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        "Muhammad Dzakwan",
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: screenWidth * 0.035,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: screenWidth * 0.01),
+                                    GestureDetector(
+                                      onTap: () {
+                                        // TODO: Handle logout
+                                      },
+                                      child: Icon(
+                                        Icons.logout_rounded,
+                                        color: Colors.white.withOpacity(0.9),
+                                        size: screenWidth * 0.06,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: screenHeight * 0.004),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.location_on_rounded,
+                                      color: Colors.white,
+                                      size: screenWidth * 0.05,
+                                    ),
+                                    SizedBox(width: screenWidth * 0.01),
+                                    Flexible(
+                                      child: Text(
+                                        "Simpang Tiga Kampus USU",
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: screenWidth * 0.033,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        // Notification Icon (rata tengah + putih)
+                        Align(
+                          alignment: Alignment.center,
+                          child: GestureDetector(
+                            onTap: () {
+                              // TODO: Handle notification
+                            },
+                            child: Icon(
+                              Icons.notifications_rounded,
+                              color: Colors.white,
+                              size: screenWidth * 0.075,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: screenHeight * 0.05),
+
+                // ===== Greetings =====
+                Column(
+                  children: [
+                    Text(
+                      "Halo Muhammad Dzakwan,",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                        fontSize: screenWidth * 0.045,
+                      ),
+                    ),
+                    SizedBox(height: screenHeight * 0.02),
+                    Text(
+                      "Butuh Laporan/Panggilan",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        fontSize: screenWidth * 0.065,
+                      ),
+                    ),
+                    Text(
+                      "Darurat?",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        fontSize: screenWidth * 0.065,
+                      ),
+                    ),
+                    SizedBox(height: screenHeight * 0.01),
+                    Text(
+                      "Silahkan tekan tombol berikut!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                        fontSize: screenWidth * 0.04,
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: screenHeight * 0.05),
+
+                // ===== Buttons =====
+                GestureDetector(
+                  onTap: () {
+                    // TODO: Handle Lapor
+                  },
+                  child: Image.asset(
+                    "assets/images/tombol_lapor.png",
+                    width: screenWidth * 0.55,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+
+                SizedBox(height: screenHeight * 0.03),
+
+                GestureDetector(
+                  onTap: () {
+                    // TODO: Handle Panggil
+                  },
+                  child: Image.asset(
+                    "assets/images/tombol_panggil.png",
+                    width: screenWidth * 0.55,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+
+                SizedBox(height: screenHeight * 0.1),
+              ],
+            ),
+          ),
         ),
       ),
     );
