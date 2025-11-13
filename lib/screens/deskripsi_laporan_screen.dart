@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:vigilanter_flutter/widgets/app_scaffold.dart';
+
+import '../theme/app_colors.dart';
 
 class DetailLaporan extends StatelessWidget {
   const DetailLaporan({super.key});
@@ -10,7 +11,8 @@ class DetailLaporan extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
     final double baseFont = screenWidth * 0.035;
 
-    return AppScaffold(
+    return Scaffold(
+      backgroundColor: AppColors.biruVigilanter,
       body: Scrollbar(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(screenWidth * 0.06),
