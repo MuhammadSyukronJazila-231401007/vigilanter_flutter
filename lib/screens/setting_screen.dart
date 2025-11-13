@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/app_scaffold.dart';
+import '../theme/app_colors.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -18,7 +18,8 @@ class _SettingScreenState extends State<SettingScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    return AppScaffold(
+    return Scaffold(
+      backgroundColor: AppColors.biruVigilanter,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(screenWidth * 0.06),
