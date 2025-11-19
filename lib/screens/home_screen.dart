@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vigilanter_flutter/config/router.dart';
 import 'package:vigilanter_flutter/services/dialog_service.dart';
+import '../config/router.dart';
 import '../theme/app_colors.dart';
 
 class HomeScreen extends StatelessWidget {
