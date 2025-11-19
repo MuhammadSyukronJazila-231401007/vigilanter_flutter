@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../theme/app_colors.dart';
 
 class SettingScreen extends StatefulWidget {
@@ -38,7 +39,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       size: screenWidth * 0.085,
                     ),
                     onPressed: () {
-                      Navigator.pop(context);
+                      context.pop();
                     },
                   ),
                   Expanded(

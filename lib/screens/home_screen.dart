@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vigilanter_flutter/config/router.dart';
 import 'package:vigilanter_flutter/services/dialog_service.dart';
 import '../theme/app_colors.dart';
 
@@ -31,25 +33,60 @@ class HomeScreen extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Avatar user
-                        Container(
-                          width: screenWidth * 0.115,
-                          height: screenWidth * 0.115,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Icons.person,
-                              color: Colors.black,
-                              size: screenWidth * 0.095, // proporsional (85%)
+                        // ===== Avatar + Settings (ditumpuk) =====
+                        Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            // Avatar user
+                            Container(
+                              width: screenWidth * 0.115,
+                              height: screenWidth * 0.115,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.person,
+                                  color: Colors.black,
+                                  size: screenWidth * 0.095,
+                                ),
+                              ),
                             ),
-                          ),
+
+                            // ===== Ikon Settings (floating di kiri bawah avatar) =====
+                            Positioned(
+                              bottom: -screenWidth * 0.010,
+                              left: -screenWidth * 0.010,
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.push(AppRoutes.setting);
+                                },
+                                child: Container(
+                                  width: screenWidth * 0.050,
+                                  height: screenWidth * 0.050,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: AppColors.biruGelap,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.settings_rounded,
+                                    size: screenWidth * 0.030,
+                                    color: AppColors.biruGelap,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+
                         SizedBox(width: screenWidth * 0.035),
 
-                        // User info
+                        // ===== User info =====
                         Expanded(
                           child: Padding(
                             padding: EdgeInsets.only(left: screenWidth * 0.005),
@@ -57,7 +94,6 @@ class HomeScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Flexible(
                                       child: Text(
@@ -72,6 +108,8 @@ class HomeScreen extends StatelessWidget {
                                       ),
                                     ),
                                     SizedBox(width: screenWidth * 0.01),
+
+                                    // Logout
                                     GestureDetector(
                                       onTap: () {
                                         // TODO: Handle logout
@@ -84,7 +122,9 @@ class HomeScreen extends StatelessWidget {
                                     ),
                                   ],
                                 ),
+
                                 SizedBox(height: screenHeight * 0.004),
+
                                 Row(
                                   children: [
                                     Icon(
@@ -112,18 +152,15 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
 
-                        // Notification Icon (rata tengah + putih)
-                        Align(
-                          alignment: Alignment.center,
-                          child: GestureDetector(
-                            onTap: () {
-                              // TODO: Handle notification
-                            },
-                            child: Icon(
-                              Icons.notifications_rounded,
-                              color: Colors.white,
-                              size: screenWidth * 0.075,
-                            ),
+                        // ===== Notification tetap di kanan =====
+                        GestureDetector(
+                          onTap: () {
+                            // TODO: Handle notification
+                          },
+                          child: Icon(
+                            Icons.notifications_rounded,
+                            color: Colors.white,
+                            size: screenWidth * 0.075,
                           ),
                         ),
                       ],
