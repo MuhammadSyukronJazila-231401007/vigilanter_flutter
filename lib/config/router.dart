@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vigilanter_flutter/screens/notifikasi_screen.dart';
 
+import '../screens/isi_laporan_screen.dart';
 import '../screens/splash.dart';
 import '../screens/signin.dart';
 import '../screens/register.dart';
@@ -22,6 +23,7 @@ class AppRoutes {
   static const home = '/home';
   static const peta = '/peta';
   static const notifikasi = '/notifikasi';
+  static const isilaporan = '/isilaporan';
 }
 
 GoRouter createRouter() {
@@ -54,6 +56,10 @@ GoRouter createRouter() {
       GoRoute(
         path: AppRoutes.notifikasi,
         builder: (context, state) => const NotifikasiScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.isilaporan,
+        builder: (context, state) => IsiLaporanScreen(),
       ),
 
       // Shell dengan bottom nav

@@ -188,6 +188,7 @@ class HomeScreen extends StatelessWidget {
                 // ===== Buttons =====
                 GestureDetector(
                   onTap: () {
+                    context.go(AppRoutes.isilaporan);
                     // TODO: Handle Lapor
                   },
                   child: Image.asset(
