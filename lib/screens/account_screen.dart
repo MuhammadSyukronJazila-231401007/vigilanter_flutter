@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../provider/auth_provider.dart';
 import '../theme/app_colors.dart';
 
 
@@ -71,6 +73,8 @@ class _AccountScreenState extends State<AccountScreen> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     final iconSize = width * 0.1;
+    final authProvider = context.read<AuthProvider>();
+    final user = authProvider.user;
 
     return Scaffold(
       backgroundColor: AppColors.biruVigilanter,
@@ -135,7 +139,7 @@ class _AccountScreenState extends State<AccountScreen> {
             _buildInfoRow(
                 context, Icons.person_outline, 'Nama', name, () => editField('Name')),
             SizedBox(height: height * 0.04),
-            _buildInfoRow(context, Icons.email_outlined, 'Email', email,
+            _buildInfoRow(context, Icons.email_outlined, 'Email', user?.email ?? 'Tidak ada',
                     () => editField('Email')),
             SizedBox(height: height * 0.04),
             _buildInfoRow(
