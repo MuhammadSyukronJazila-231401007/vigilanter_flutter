@@ -1,5 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:vigilanter_flutter/theme/app_colors.dart';
+import '../config/router.dart';
+import '../provider/app_state_provider.dart';
+import '../provider/auth_provider.dart';
+import '../utils/snackbar_helper.dart';
+import '../utils/validators.dart';
 import 'signin.dart';
 
 class Register extends StatefulWidget {
@@ -10,10 +19,96 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
+
+  final _namaDepanController = TextEditingController();
+  final _namaBelakangController = TextEditingController();
+  final _tanggalLahirController = TextEditingController();
+  final _nikController = TextEditingController();
+  final _noTeleponController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmpasswordController = TextEditingController();
+
+  bool _isLoading = false;
   bool isChecked = false;
   final List<String> jenisKelaminList = ['Laki-laki', 'Perempuan'];
   String? selectedJenisKelamin;
 
+  @override
+  void dispose() {
+    _namaDepanController.dispose();
+    _namaBelakangController.dispose();
+    _tanggalLahirController.dispose();
+    _nikController.dispose();
+    _noTeleponController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmpasswordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleRegister() async {
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmpasswordController.text;
+
+    final emailError = Validators.validateEmail(email);
+    if (emailError != null) {
+      SnackbarHelper.showError(context, emailError);
+      return;
+    }
+
+    final passwordError = Validators.validatePassword(password);
+    if (passwordError != null) {
+      SnackbarHelper.showError(context, passwordError);
+      return;
+    }
+
+    final confirmPasswordError = Validators.validatePasswordConfirmation(password, confirmPassword);
+    if (confirmPasswordError != null) {
+      SnackbarHelper.showError(context, confirmPasswordError);
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final authProvider = context.read<AuthProvider>();
+    final success = await authProvider.signUpWithEmail(
+      email: email,
+      password: password,
+    );
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
+
+    if (success) {
+      tambahAkun();
+      Provider.of<AppStateProvider>(context, listen: false).userId = FirebaseAuth.instance.currentUser?.uid;
+      if (mounted) {
+        SnackbarHelper.showSuccess(context, 'Register berhasil!');
+        context.go(AppRoutes.home);
+      }
+    } else {
+      if (mounted) {
+        final errorMessage = authProvider.errorMessage ?? 'Register gagal';
+        SnackbarHelper.showError(context, errorMessage);
+      }
+    }
+  }
+
+  Future<void> tambahAkun() async {
+    await FirebaseFirestore.instance.collection("users").add({
+      "nama_depan": _namaDepanController.text,
+      "nama_belakang": _namaBelakangController.text,
+      "jenis_kelamin": selectedJenisKelamin,
+      "tanggal_lahir": _tanggalLahirController.text,
+      "nik": _nikController.text,
+      "no_telepon": _noTeleponController.text,
+      "email": _emailController.text,
+    });
+  }
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -43,8 +138,10 @@ class _RegisterState extends State<Register> {
               SizedBox(height: screenHeight * 0.03),
 
               // Nama Depan
-              _buildTextField(
+              _buildControllerTextField(
                 hint: 'Nama Depan',
+                controller: _namaDepanController,
+                loading: !_isLoading,
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
               ),
@@ -52,8 +149,10 @@ class _RegisterState extends State<Register> {
               SizedBox(height: screenHeight * 0.025),
 
               // Nama Belakang
-              _buildTextField(
+              _buildControllerTextField(
                 hint: 'Nama Belakang',
+                controller: _namaBelakangController,
+                loading: !_isLoading,
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
               ),
@@ -109,50 +208,62 @@ class _RegisterState extends State<Register> {
               SizedBox(height: screenHeight * 0.025),
 
               // Tanggal Lahir
-              _buildTextField(
+              _buildControllerTextField(
                 hint: 'Tanggal Lahir (hh/bb/tttt)',
+                controller: _tanggalLahirController,
+                loading: !_isLoading,
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
-                readOnly: true,
+                //readOnly: true,
               ),
 
               SizedBox(height: screenHeight * 0.025),
 
-              _buildTextField(
+              _buildControllerTextField(
                 hint: 'Nomor Induk Kependudukan (NIK)',
+                controller: _nikController,
+                loading: !_isLoading,
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
               ),
 
               SizedBox(height: screenHeight * 0.025),
 
-              _buildTextField(
+              _buildControllerTextField(
                 hint: 'Nomor Telepon',
+                controller: _noTeleponController,
+                loading: !_isLoading,
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
               ),
 
               SizedBox(height: screenHeight * 0.025),
 
-              _buildTextField(
-                hint: 'Email',
+              _buildControllerTextField(
+                hint: 'E-mail',
+                controller: _emailController,
+                loading: !_isLoading,
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
               ),
 
-              SizedBox(height: screenHeight * 0.025),
 
-              _buildTextField(
+              SizedBox(height: screenHeight * 0.025),
+              _buildControllerTextField(
                 hint: 'Kata Sandi Baru',
+                controller: _passwordController,
+                loading: !_isLoading,
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
-                obscureText: true,
               ),
+
 
               SizedBox(height: screenHeight * 0.025),
 
-              _buildTextField(
+              _buildControllerTextField(
                 hint: 'Konfirmasi Kata Sandi Baru',
+                controller: _confirmpasswordController,
+                loading: !_isLoading,
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
                 obscureText: true,
@@ -193,7 +304,7 @@ class _RegisterState extends State<Register> {
                 width: double.infinity,
                 height: screenHeight * 0.053,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _isLoading && isChecked ? null : _handleRegister,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.kuningVigilanter,
                     foregroundColor: Colors.black,
@@ -259,37 +370,42 @@ class _RegisterState extends State<Register> {
   }
 
   // Widget reusable untuk input field
-  Widget _buildTextField({
-    required String hint,
-    required double screenWidth,
-    required double screenHeight,
-    bool obscureText = false,
-    bool readOnly = false,
-  }) {
-    return TextField(
-      obscureText: obscureText,
-      readOnly: readOnly,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(
-          fontSize: screenWidth * 0.04,
-          color: AppColors.abuMuda,
-        ),
-        filled: true,
-        fillColor: AppColors.biruGelap,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(21), // tidak terlalu rounded
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: EdgeInsets.symmetric(
-          vertical: screenHeight * 0.012,
-          horizontal: screenWidth * 0.05,
-        ),
-      ),
-      style: TextStyle(
-        fontSize: screenWidth * 0.037,
+
+}
+Widget _buildControllerTextField({
+  required String hint,
+  required double screenWidth,
+  required double screenHeight,
+  required TextEditingController controller,
+  bool loading = false,
+  bool obscureText = false,
+  bool readOnly = false,
+}) {
+  return TextField(
+    controller: controller,
+    enabled: loading,
+    obscureText: obscureText,
+    readOnly: readOnly,
+    decoration: InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(
+        fontSize: screenWidth * 0.04,
         color: AppColors.abuMuda,
       ),
-    );
-  }
+      filled: true,
+      fillColor: AppColors.biruGelap,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(21), // tidak terlalu rounded
+        borderSide: BorderSide.none,
+      ),
+      contentPadding: EdgeInsets.symmetric(
+        vertical: screenHeight * 0.012,
+        horizontal: screenWidth * 0.05,
+      ),
+    ),
+    style: TextStyle(
+      fontSize: screenWidth * 0.037,
+      color: AppColors.abuMuda,
+    ),
+  );
 }

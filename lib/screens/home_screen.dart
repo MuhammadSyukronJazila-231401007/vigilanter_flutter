@@ -3,17 +3,27 @@ import 'package:go_router/go_router.dart';
 import 'package:vigilanter_flutter/config/router.dart';
 import 'package:vigilanter_flutter/screens/video_record_screen.dart';
 import 'package:vigilanter_flutter/services/dialog_service.dart';
-import '../config/router.dart';
+import 'package:provider/provider.dart';
+import '../provider/auth_provider.dart';
 import '../theme/app_colors.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
+    // Future<String> nama(){
+    //   final uid = Provider.of<AppStateProvider>(context, listen: false).UserId;
+    //   final nama = Provider.of<AuthProvider>(context, listen: false).namaPengguna(uid!);
+    //
+    //   if (nama != null){
+    //     return nama;
+    //   }
+    // }
     return Scaffold(
       backgroundColor: AppColors.biruVigilanter,
       body: SafeArea(
@@ -97,7 +107,7 @@ class HomeScreen extends StatelessWidget {
                                   children: [
                                     Flexible(
                                       child: Text(
-                                        "Muhammad Dzakwan",
+                                        "Muhammad Dzakwan", //TODO: Database
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontFamily: 'Poppins',
@@ -111,8 +121,43 @@ class HomeScreen extends StatelessWidget {
 
                                     // Logout
                                     GestureDetector(
-                                      onTap: () {
-                                        // TODO: Handle logout
+                                      onTap: () async {
+                                        final shouldLogout = await showDialog<bool>(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            title: const Text('Logout'),
+                                            content: const Text('Apakah Anda yakin ingin logout?'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Navigator.of(context).pop(false),
+                                                child: const Text('Batal'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () => Navigator.of(context).pop(true),
+                                                child: const Text(
+                                                  'Logout',
+                                                  style: TextStyle(color: Colors.red),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+
+                                        if (shouldLogout == true && context.mounted) {
+                                          final authProvider = context.read<AuthProvider>();
+                                          final success = await authProvider.signOut();
+
+                                          if (!success && context.mounted) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  authProvider.errorMessage ?? 'Logout gagal',
+                                                ),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                          }
+                                        }
                                       },
                                       child: Icon(
                                         Icons.logout_rounded,

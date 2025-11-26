@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../provider/auth_provider.dart';
 import '../theme/app_colors.dart';
+import 'package:go_router/go_router.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -166,23 +168,63 @@ class _SettingScreenState extends State<SettingScreen> {
               SizedBox(height: screenHeight * 0.02),
 
               // ===== LOGOUT =====
-              Row(
-                children: [
-                  Icon(
-                    Icons.logout_outlined,
-                    color: Colors.white,
-                    size: screenWidth * 0.075,
-                  ),
-                  SizedBox(width: screenWidth * 0.03),
-                  Text(
-                    'Logout',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: screenWidth * 0.04,
-                      fontWeight: FontWeight.w500,
+              GestureDetector(
+                onTap: () async {
+                  final shouldLogout = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Logout'),
+                      content: const Text('Apakah Anda yakin ingin logout?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('Batal'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: const Text(
+                            'Logout',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                  );
+
+                  if (shouldLogout == true && context.mounted) {
+                    final authProvider = context.read<AuthProvider>();
+                    final success = await authProvider.signOut();
+
+                    if (!success && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            authProvider.errorMessage ?? 'Logout gagal',
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                    }
+                },
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.logout_outlined,
+                      color: Colors.white,
+                      size: screenWidth * 0.075,
+                    ),
+                    SizedBox(width: screenWidth * 0.03),
+                    Text(
+                      'Logout',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: screenWidth * 0.04,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               SizedBox(height: screenHeight * 0.04),
             ],
