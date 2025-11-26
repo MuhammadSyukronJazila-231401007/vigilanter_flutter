@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vigilanter_flutter/config/router.dart';
+import 'package:vigilanter_flutter/screens/video_record_screen.dart';
 import 'package:vigilanter_flutter/services/dialog_service.dart';
 import '../config/router.dart';
 import '../theme/app_colors.dart';
@@ -16,11 +17,9 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.biruVigilanter,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-            child: Column(
-              children: [
+        child: ListView(
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+           children: [
                 SizedBox(height: screenHeight * 0.03),
 
                 // ===== Card User Info =====
@@ -156,7 +155,7 @@ class HomeScreen extends StatelessWidget {
                         // ===== Notification tetap di kanan =====
                         GestureDetector(
                           onTap: () {
-                            // TODO: Handle notification
+                              context.push(AppRoutes.notifikasi);
                           },
                           child: Icon(
                             Icons.notifications_rounded,
@@ -221,45 +220,61 @@ class HomeScreen extends StatelessWidget {
 
                 SizedBox(height: screenHeight * 0.05),
 
-                // ===== Buttons =====
-                GestureDetector(
-                  onTap: () {
-                    // TODO: Handle Lapor
-                  },
-                  child: Image.asset(
-                    "assets/images/tombol_lapor.png",
+                Center(
+                  child: SizedBox(
                     width: screenWidth * 0.6,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-
-                SizedBox(height: screenHeight * 0.03),
-
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(100),
-                    splashColor: Colors.white.withOpacity(0.3),
-                    onTap: () {
-                      DialogService.showEmergencyPopup(context);
-                    },
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(100),
-                      child: Image.asset(
-                        "assets/images/tombol_panggil.png",
-                        width: screenWidth * 0.6,
-                        fit: BoxFit.contain,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () {
+                          Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const VideoRecordScreen(),
+                        ),
+                      );
+                        },
+                        child: Image.asset(
+                          "assets/images/tombol_lapor.png",
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),
                 ),
-                
+
+
+                SizedBox(height: screenHeight * 0.03),
+
+                Center(
+                  child: SizedBox(
+                    width: screenWidth * 0.6,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(100),
+                        splashColor: Colors.white.withOpacity(0.3),
+                        onTap: () {
+                          debugPrint("INKWELL TAPPED");
+                          DialogService.showEmergencyPopup(context);
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: Image.asset(
+                            "assets/images/tombol_panggil.png",
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
                 SizedBox(height: screenHeight * 0.1),
               ],
-            ),
           ),
         ),
-      ),
-    );
+      );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vigilanter_flutter/screens/notifikasi_screen.dart';
+import 'package:vigilanter_flutter/screens/video_record_screen.dart';
 
 import '../screens/splash.dart';
 import '../screens/signin.dart';
@@ -22,6 +23,7 @@ class AppRoutes {
   static const home = '/home';
   static const peta = '/peta';
   static const notifikasi = '/notifikasi';
+  static const rekamVideo = '/rekam_video';
 }
 
 GoRouter createRouter() {
@@ -54,6 +56,10 @@ GoRouter createRouter() {
       GoRoute(
         path: AppRoutes.notifikasi,
         builder: (context, state) => const NotifikasiScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.rekamVideo,
+        builder: (context, state) => const VideoRecordScreen(),
       ),
 
       // Shell dengan bottom nav

@@ -26,6 +26,7 @@ class _SplashState extends State<Splash> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screeneight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: const Color(0xFF000229),
@@ -40,29 +41,32 @@ class _SplashState extends State<Splash> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.only(bottom: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              'assets/images/vgt_txt.png',
-              width: screenWidth * 0.4,
-              height: screenWidth * 0.4,
-              fit: BoxFit.contain,
-            ),
-            Transform.translate(
-              offset: const Offset(0, -4), // biar text lebih nempel
-              child: const Text(
-                "Vigilance in your hand",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
+      bottomNavigationBar: SafeArea(
+        bottom: true,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 40),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset(
+                'assets/images/vgt_txt.png',
+                width: screenWidth * 0.4,
+                height: screenWidth * 0.4,
+                fit: BoxFit.contain,
+              ),
+              Transform.translate(
+                offset: const Offset(0, -4),
+                child: const Text(
+                  "Vigilance in your hand",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

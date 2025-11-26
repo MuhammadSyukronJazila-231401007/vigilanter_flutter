@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '';
 import '../data/data_notifikasi.dart';
 
 class NotifikasiList extends StatefulWidget {

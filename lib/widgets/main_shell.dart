@@ -15,7 +15,9 @@ class MainShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.biruVigilanter,
-      body: navigationShell,
+      body: SafeArea(
+        child: navigationShell,
+      ),
       bottomNavigationBar: VigilanterBottomNav(
         currentIndex: navigationShell.currentIndex,
         onTap: (index) => _onItemTapped(context, index),

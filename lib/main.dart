@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:vigilanter_flutter/config/router.dart';
 
 void main() {
+  debugPaintPointersEnabled = true; // Tampilkan area yang menangkap pointer
   runApp(const App());
 }
 

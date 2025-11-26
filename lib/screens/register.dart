@@ -25,7 +25,7 @@ class _RegisterState extends State<Register> {
       resizeToAvoidBottomInset: false,
       body: Center(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(screenWidth * 0.07),
+          padding: EdgeInsets.all(screenWidth * 0.09),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,7 +250,7 @@ class _RegisterState extends State<Register> {
                 ],
               ),
 
-              SizedBox(height: screenHeight * 0.03),
+              SizedBox(height: screenHeight * 0.05),
             ],
           ),
         ),
