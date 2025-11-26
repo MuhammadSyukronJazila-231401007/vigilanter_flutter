@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:vigilanter_flutter/provider/app_state_provider.dart';
 import 'package:vigilanter_flutter/screens/notifikasi_screen.dart';
 
 import '../screens/isi_laporan_screen.dart';
@@ -26,12 +29,36 @@ class AppRoutes {
   static const isilaporan = '/isilaporan';
 }
 
+
 GoRouter createRouter() {
   final rootNavigatorKey = GlobalKey<NavigatorState>();
 
   return GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: AppRoutes.splash,
+    redirect: (BuildContext? context, GoRouterState state) {
+      if (context == null) return null;
+
+      final appStateProvider = Provider.of<AppStateProvider>(context, listen: false);
+      final ingatSaya = appStateProvider.StatusIngatSaya;
+      final user = FirebaseAuth.instance.currentUser;
+      final isAuthenticated = user != null;
+      final isAuthRoute = state.matchedLocation == AppRoutes.signin ||
+          state.matchedLocation == AppRoutes.register;
+
+      if (ingatSaya && isAuthenticated && isAuthRoute) {
+        return AppRoutes.home;
+      }
+      if (!isAuthenticated && !isAuthRoute) {
+        return AppRoutes.signin;
+      }
+      if (isAuthenticated && isAuthRoute) {
+        return AppRoutes.home;
+      }
+
+      return null;
+    },
+    refreshListenable: AuthStateNotifier(),
     routes: [
       GoRoute(
         path: AppRoutes.splash,
@@ -97,3 +124,12 @@ GoRouter createRouter() {
     ],
   );
 }
+
+class AuthStateNotifier extends ChangeNotifier {
+  AuthStateNotifier() {
+    FirebaseAuth.instance.authStateChanges().listen((_) {
+      notifyListeners();
+    });
+  }
+}
+
