@@ -118,251 +118,253 @@ class _RegisterState extends State<Register> {
     return Scaffold(
       backgroundColor: AppColors.biruVigilanter,
       resizeToAvoidBottomInset: false,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(screenWidth * 0.09),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Judul
-              Text(
-                "Buat Akun",
-                style: TextStyle(
-                  fontSize: screenWidth * (isLargeScreen ? 0.06 : 0.08),
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800, // paling tebal
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(screenWidth * 0.09),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Judul
+                Text(
+                  "Buat Akun",
+                  style: TextStyle(
+                    fontSize: screenWidth * (isLargeScreen ? 0.06 : 0.08),
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800, // paling tebal
+                  ),
                 ),
-              ),
-
-              SizedBox(height: screenHeight * 0.03),
-
-              // Nama Depan
-              _buildControllerTextField(
-                hint: 'Nama Depan',
-                controller: _namaDepanController,
-                loading: !_isLoading,
-                screenWidth: screenWidth,
-                screenHeight: screenHeight,
-              ),
-
-              SizedBox(height: screenHeight * 0.025),
-
-              // Nama Belakang
-              _buildControllerTextField(
-                hint: 'Nama Belakang',
-                controller: _namaBelakangController,
-                loading: !_isLoading,
-                screenWidth: screenWidth,
-                screenHeight: screenHeight,
-              ),
-
-              SizedBox(height: screenHeight * 0.025),
-
-              // Jenis Kelamin (Dropdown) — dibuat selebar form
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                decoration: BoxDecoration(
-                  color: AppColors.biruGelap,
-                  borderRadius: BorderRadius.circular(21), // lebih kecil
+        
+                SizedBox(height: screenHeight * 0.03),
+        
+                // Nama Depan
+                _buildControllerTextField(
+                  hint: 'Nama Depan',
+                  controller: _namaDepanController,
+                  loading: !_isLoading,
+                  screenWidth: screenWidth,
+                  screenHeight: screenHeight,
                 ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    dropdownColor: AppColors.biruGelap,
-                    value: selectedJenisKelamin,
-                    hint: Text(
-                      'Jenis Kelamin',
-                      style: TextStyle(
-                        color: AppColors.abuMuda,
-                        fontSize: screenWidth * 0.04,
+        
+                SizedBox(height: screenHeight * 0.025),
+        
+                // Nama Belakang
+                _buildControllerTextField(
+                  hint: 'Nama Belakang',
+                  controller: _namaBelakangController,
+                  loading: !_isLoading,
+                  screenWidth: screenWidth,
+                  screenHeight: screenHeight,
+                ),
+        
+                SizedBox(height: screenHeight * 0.025),
+        
+                // Jenis Kelamin (Dropdown) — dibuat selebar form
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                  decoration: BoxDecoration(
+                    color: AppColors.biruGelap,
+                    borderRadius: BorderRadius.circular(21), // lebih kecil
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      dropdownColor: AppColors.biruGelap,
+                      value: selectedJenisKelamin,
+                      hint: Text(
+                        'Jenis Kelamin',
+                        style: TextStyle(
+                          color: AppColors.abuMuda,
+                          fontSize: screenWidth * 0.04,
+                        ),
                       ),
-                    ),
-                    isExpanded: true,
-                    icon: Icon(
-                      Icons.arrow_drop_down,
-                      color: AppColors.abuMuda,
-                      size: screenWidth * 0.06,
-                    ),
-                    items: jenisKelaminList.map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(
-                          value,
-                          style: TextStyle(
-                            color: AppColors.abuMuda,
-                            fontSize: screenWidth * 0.04,
+                      isExpanded: true,
+                      icon: Icon(
+                        Icons.arrow_drop_down,
+                        color: AppColors.abuMuda,
+                        size: screenWidth * 0.06,
+                      ),
+                      items: jenisKelaminList.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(
+                            value,
+                            style: TextStyle(
+                              color: AppColors.abuMuda,
+                              fontSize: screenWidth * 0.04,
+                            ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedJenisKelamin = newValue;
-                      });
-                    },
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedJenisKelamin = newValue;
+                        });
+                      },
+                    ),
                   ),
                 ),
-              ),
-
-              SizedBox(height: screenHeight * 0.025),
-
-              // Tanggal Lahir
-              _buildControllerTextField(
-                hint: 'Tanggal Lahir (hh/bb/tttt)',
-                controller: _tanggalLahirController,
-                loading: !_isLoading,
-                screenWidth: screenWidth,
-                screenHeight: screenHeight,
-                //readOnly: true,
-              ),
-
-              SizedBox(height: screenHeight * 0.025),
-
-              _buildControllerTextField(
-                hint: 'Nomor Induk Kependudukan (NIK)',
-                controller: _nikController,
-                loading: !_isLoading,
-                screenWidth: screenWidth,
-                screenHeight: screenHeight,
-              ),
-
-              SizedBox(height: screenHeight * 0.025),
-
-              _buildControllerTextField(
-                hint: 'Nomor Telepon',
-                controller: _noTeleponController,
-                loading: !_isLoading,
-                screenWidth: screenWidth,
-                screenHeight: screenHeight,
-              ),
-
-              SizedBox(height: screenHeight * 0.025),
-
-              _buildControllerTextField(
-                hint: 'E-mail',
-                controller: _emailController,
-                loading: !_isLoading,
-                screenWidth: screenWidth,
-                screenHeight: screenHeight,
-              ),
-
-
-              SizedBox(height: screenHeight * 0.025),
-              _buildControllerTextField(
-                hint: 'Kata Sandi Baru',
-                controller: _passwordController,
-                loading: !_isLoading,
-                screenWidth: screenWidth,
-                screenHeight: screenHeight,
-              ),
-
-
-              SizedBox(height: screenHeight * 0.025),
-
-              _buildControllerTextField(
-                hint: 'Konfirmasi Kata Sandi Baru',
-                controller: _confirmpasswordController,
-                loading: !_isLoading,
-                screenWidth: screenWidth,
-                screenHeight: screenHeight,
-                obscureText: true,
-              ),
-
-              SizedBox(height: screenHeight * 0.03),
-
-              // Checkbox + teks
-              Row(
-                children: [
-                  Checkbox(
-                    value: isChecked,
-                    onChanged: (value) {
-                      setState(() {
-                        isChecked = value ?? false;
-                      });
-                    },
-                    activeColor: Colors.white,
-                    checkColor: Colors.black,
-                    visualDensity: const VisualDensity(horizontal: -4),
-                  ),
-                  Expanded(
-                    child: Text(
-                      "Saya menyetujui syarat & kebijakan privasi",
-                      style: TextStyle(
-                        color: AppColors.abuMuda,
-                        fontSize: screenWidth * 0.035,
+        
+                SizedBox(height: screenHeight * 0.025),
+        
+                // Tanggal Lahir
+                _buildControllerTextField(
+                  hint: 'Tanggal Lahir (hh/bb/tttt)',
+                  controller: _tanggalLahirController,
+                  loading: !_isLoading,
+                  screenWidth: screenWidth,
+                  screenHeight: screenHeight,
+                  //readOnly: true,
+                ),
+        
+                SizedBox(height: screenHeight * 0.025),
+        
+                _buildControllerTextField(
+                  hint: 'Nomor Induk Kependudukan (NIK)',
+                  controller: _nikController,
+                  loading: !_isLoading,
+                  screenWidth: screenWidth,
+                  screenHeight: screenHeight,
+                ),
+        
+                SizedBox(height: screenHeight * 0.025),
+        
+                _buildControllerTextField(
+                  hint: 'Nomor Telepon',
+                  controller: _noTeleponController,
+                  loading: !_isLoading,
+                  screenWidth: screenWidth,
+                  screenHeight: screenHeight,
+                ),
+        
+                SizedBox(height: screenHeight * 0.025),
+        
+                _buildControllerTextField(
+                  hint: 'E-mail',
+                  controller: _emailController,
+                  loading: !_isLoading,
+                  screenWidth: screenWidth,
+                  screenHeight: screenHeight,
+                ),
+        
+        
+                SizedBox(height: screenHeight * 0.025),
+                _buildControllerTextField(
+                  hint: 'Kata Sandi Baru',
+                  controller: _passwordController,
+                  loading: !_isLoading,
+                  screenWidth: screenWidth,
+                  screenHeight: screenHeight,
+                ),
+        
+        
+                SizedBox(height: screenHeight * 0.025),
+        
+                _buildControllerTextField(
+                  hint: 'Konfirmasi Kata Sandi Baru',
+                  controller: _confirmpasswordController,
+                  loading: !_isLoading,
+                  screenWidth: screenWidth,
+                  screenHeight: screenHeight,
+                  obscureText: true,
+                ),
+        
+                SizedBox(height: screenHeight * 0.03),
+        
+                // Checkbox + teks
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isChecked,
+                      onChanged: (value) {
+                        setState(() {
+                          isChecked = value ?? false;
+                        });
+                      },
+                      activeColor: Colors.white,
+                      checkColor: Colors.black,
+                      visualDensity: const VisualDensity(horizontal: -4),
+                    ),
+                    Expanded(
+                      child: Text(
+                        "Saya menyetujui syarat & kebijakan privasi",
+                        style: TextStyle(
+                          color: AppColors.abuMuda,
+                          fontSize: screenWidth * 0.035,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: screenHeight * 0.03),
-
-              // Tombol Buat Akun (sesuai gaya tombol login)
-              SizedBox(
-                width: double.infinity,
-                height: screenHeight * 0.053,
-                child: ElevatedButton(
-                  onPressed: _isLoading && isChecked ? null : _handleRegister,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.kuningVigilanter,
-                    foregroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(screenWidth * 0.1),
-                    ),
-                    elevation: 5,
-                  ),
-                  child: Text(
-                    'Buat Akun',
-                    style: TextStyle(
-                      fontSize: screenWidth * 0.04,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  ],
                 ),
-              ),
-
-              SizedBox(height: screenHeight * 0.02),
-
-              // Sudah punya akun? Masuk
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Sudah punya akun?",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: screenWidth * 0.037,
+        
+                SizedBox(height: screenHeight * 0.03),
+        
+                // Tombol Buat Akun (sesuai gaya tombol login)
+                SizedBox(
+                  width: double.infinity,
+                  height: screenHeight * 0.053,
+                  child: ElevatedButton(
+                    onPressed: _isLoading && isChecked ? null : _handleRegister,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.kuningVigilanter,
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(screenWidth * 0.1),
+                      ),
+                      elevation: 5,
                     ),
-                  ),
-                  SizedBox(width: screenWidth * 0.015),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const Signin(),
-                        ),
-                      );
-                    },
                     child: Text(
-                      "Masuk",
+                      'Buat Akun',
                       style: TextStyle(
-                        color: AppColors.kuningVigilanter,
-                        fontWeight: FontWeight.w900,
                         fontSize: screenWidth * 0.04,
-                        decoration: TextDecoration.underline,
-                        decorationColor: AppColors.kuningVigilanter,
-                        decorationThickness: 1.2,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
-                ],
-              ),
-
-              SizedBox(height: screenHeight * 0.05),
-            ],
+                ),
+        
+                SizedBox(height: screenHeight * 0.02),
+        
+                // Sudah punya akun? Masuk
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Sudah punya akun?",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: screenWidth * 0.037,
+                      ),
+                    ),
+                    SizedBox(width: screenWidth * 0.015),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Signin(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "Masuk",
+                        style: TextStyle(
+                          color: AppColors.kuningVigilanter,
+                          fontWeight: FontWeight.w900,
+                          fontSize: screenWidth * 0.04,
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColors.kuningVigilanter,
+                          decorationThickness: 1.2,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+        
+                SizedBox(height: screenHeight * 0.05),
+              ],
+            ),
           ),
         ),
       ),

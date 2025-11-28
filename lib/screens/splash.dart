@@ -30,14 +30,16 @@ class _SplashState extends State<Splash> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF000229),
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(screenWidth * 0.07),
-          child: Image.asset(
-            'assets/images/vigilanter.png',
-            width: screenWidth * 0.43,
-            height: screenWidth * 0.43,
-            fit: BoxFit.cover,
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.all(screenWidth * 0.07),
+            child: Image.asset(
+              'assets/images/vigilanter.png',
+              width: screenWidth * 0.43,
+              height: screenWidth * 0.43,
+              fit: BoxFit.cover,
+            ),
           ),
         ),
       ),

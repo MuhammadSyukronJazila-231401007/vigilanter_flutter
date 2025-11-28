@@ -73,14 +73,14 @@ class HomeScreen extends StatelessWidget {
                                   context.push(AppRoutes.setting);
                                 },
                                 child: Container(
-                                  width: screenWidth * 0.050,
-                                  height: screenWidth * 0.050,
+                                  width: screenWidth * 0.065,
+                                  height: screenWidth * 0.065,
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     shape: BoxShape.circle,
                                     border: Border.all(
                                       color: AppColors.biruGelap,
-                                      width: 1.5,
+                                      width: 1.6,
                                     ),
                                   ),
                                   child: Icon(
@@ -273,12 +273,13 @@ class HomeScreen extends StatelessWidget {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(16),
                         onTap: () {
-                          Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const VideoRecordScreen(),
-                        ),
-                      );
+                      //     Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => const VideoRecordScreen(),
+                      //   ),
+                      // );
+                      context.push(AppRoutes.rekamVideo);
                         },
                         child: Image.asset(
                           "assets/images/tombol_lapor.png",
