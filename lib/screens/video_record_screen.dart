@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:media_store_plus/media_store_plus.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:vigilanter_flutter/config/router.dart';
 
 class VideoRecordScreen extends StatefulWidget {
   const VideoRecordScreen({super.key});
@@ -34,15 +37,24 @@ class _VideoRecordScreenState extends State<VideoRecordScreen> {
 
     _controller = CameraController(
       _cameras![_cameraIndex],
-      ResolutionPreset.high,
+      ResolutionPreset.medium, // stabil fps
       enableAudio: true,
+      imageFormatGroup: ImageFormatGroup.yuv420,
     );
 
     await _controller!.initialize();
+
+    try {
+      await _controller!.prepareForVideoRecording(); // memperbaiki fps
+    } catch (e) {
+      debugPrint("prepareForVideoRecording error: $e");
+    }
+
     if (!mounted) return;
 
     setState(() {});
   }
+
 
   // Flip camera
   Future<void> _flipCamera() async {
@@ -88,12 +100,8 @@ class _VideoRecordScreenState extends State<VideoRecordScreen> {
   // Start recording
   Future<void> _startRecording() async {
     if (_controller == null || !_controller!.value.isInitialized) return;
-    
-    final directory = Directory('/storage/emulated/0/DCIM/Vigilanter');
-    if (!directory.existsSync()) {
-        directory.createSync(recursive: true);
-    }
-    final filePath = "${directory.path}/VID_${DateTime.now().millisecondsSinceEpoch}.mp4";
+
+    await _controller!.prepareForVideoRecording(); // WAJIB agar tidak slowmo
 
     await _controller!.startVideoRecording();
 
@@ -102,19 +110,62 @@ class _VideoRecordScreenState extends State<VideoRecordScreen> {
     setState(() {});
   }
 
+
+  // --- GANTI DENGAN INI ---
+
   // Stop and return file
   Future<void> _stopRecording() async {
     if (_controller == null || !_controller!.value.isRecordingVideo) return;
 
     _stopTimer();
 
-    final file = await _controller!.stopVideoRecording();
+    // stop repository recording, get the temporary recorded file
+    final XFile file = await _controller!.stopVideoRecording();
     _isRecording = false;
     setState(() {});
 
-    // Kembalikan file video ke screen sebelumnya
-    Navigator.pop(context, File(file.path));
+    try {
+      // simpan file tmp ke gallery/MediaStore
+      final SaveInfo? savedInfo = await _saveToGallery(file.path);
+
+      // optional: debug
+      debugPrint('SavedInfo: ${savedInfo?.toString()}');
+
+      // kembalikan ke screen Isilaporan: kirim uri string (jika tersedia) atau path temporer
+      final returnValue = savedInfo?.uri.toString() ?? file.path;
+      context.go(AppRoutes.isilaporan, extra: returnValue);
+
+    } catch (e, st) {
+      debugPrint('Error saving to gallery: $e\n$st');
+      // fallback: langsung kembalikan file.path jika gagal
+      Navigator.pop(context, file.path);
+    }
   }
+
+  /// Simpan file sementara (tempFilePath) ke gallery lewat MediaStore plugin
+  /// --> Mengembalikan SaveInfo? sesuai dokumentasi media_store_plus 0.1.3
+  Future<SaveInfo?> _saveToGallery(String tempFilePath) async {
+    final mediaStore = MediaStore();
+
+    // pastikan appFolder sudah di-set di main.dart (atau set di sini jika perlu)
+    // MediaStore.appFolder = "Vigilanter"; // (opsional) bila belum diatur di main()
+
+    // Pilih dirName yang sesuai. Untuk video biasanya pakai DirName.movies
+    // Jika ingin masuk Movies/Vigilanter -> relativePath: "Vigilanter"
+    final SaveInfo? result = await mediaStore.saveFile(
+      tempFilePath: tempFilePath,     // path file rekaman sementara (XFile.path)
+      dirType: DirType.video,         // tipe: video
+      dirName: DirName.movies,        // gunakan DirName.movies (enum)
+      relativePath: "Vigilanter",     // (opsional) folder/album di dalam Movies
+    );
+
+    debugPrint('media_store_plus.saveFile returned: $result');
+
+    return result;
+  }
+
+  // --- AKHIR PENGGANTIAN ---
+
 
   @override
   void dispose() {
