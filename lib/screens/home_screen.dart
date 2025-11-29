@@ -1,29 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vigilanter_flutter/config/router.dart';
-import 'package:vigilanter_flutter/screens/video_record_screen.dart';
 import 'package:vigilanter_flutter/services/dialog_service.dart';
 import 'package:provider/provider.dart';
+import 'package:vigilanter_flutter/services/laporan_service.dart';
+import 'package:vigilanter_flutter/services/location_service.dart';
+import 'package:vigilanter_flutter/services/user_service.dart';
 import '../provider/auth_provider.dart';
 import '../theme/app_colors.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String? userName;
+  String? streetName;
+
+  final userService = UserService();
+  final locationService = LocationService();
+  final laporanService = LaporanService();
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    final auth = context.read<AuthProvider>();
+    final uid = auth.userId;
+
+    if (uid == null) return;
+
+    // 1. Ambil nama user dari Firestore
+    final name = await userService.getUserFirstName(uid);
+
+    // 2. Ambil lokasi user
+    final pos = await locationService.getPosition();
+    String? street;
+    if (pos != null) {
+      street = await locationService.getStreetNameOnly(
+          pos.latitude, pos.longitude);
+    }
+
+    setState(() {
+      userName = name ?? "Pengguna";
+      streetName = street ?? "Lokasi tidak diketahui";
+    });
+
+    final now = DateTime.now();
+    final hasil = laporanService.getFormattedTime(now);
+    debugPrint("Hasil format: $hasil");
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    // Future<String> nama(){
-    //   final uid = Provider.of<AppStateProvider>(context, listen: false).UserId;
-    //   final nama = Provider.of<AuthProvider>(context, listen: false).namaPengguna(uid!);
-    //
-    //   if (nama != null){
-    //     return nama;
-    //   }
-    // }
     return Scaffold(
       backgroundColor: AppColors.biruVigilanter,
       body: SafeArea(
@@ -107,7 +145,7 @@ class HomeScreen extends StatelessWidget {
                                   children: [
                                     Flexible(
                                       child: Text(
-                                        "Muhammad Dzakwan", //TODO: Database
+                                        userName ?? "Loading...",
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontFamily: 'Poppins',
@@ -180,7 +218,7 @@ class HomeScreen extends StatelessWidget {
                                     SizedBox(width: screenWidth * 0.01),
                                     Flexible(
                                       child: Text(
-                                        "Simpang Tiga Kampus USU",
+                                        streetName ?? "Memuat lokasi...",
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontFamily: 'Poppins',
@@ -219,7 +257,7 @@ class HomeScreen extends StatelessWidget {
                 Column(
                   children: [
                     Text(
-                      "Halo Muhammad Dzakwan,",
+                      "Halo ${userName ?? ""},",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Poppins',

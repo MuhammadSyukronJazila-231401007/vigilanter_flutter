@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:vigilanter_flutter/config/router.dart';
 import 'package:vigilanter_flutter/provider/app_state_provider.dart';
 import 'package:vigilanter_flutter/provider/auth_provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +21,9 @@ Future<void> main() async {
 
   // 🔥 Tambahkan ini (request izin sebelum runApp)
   await _setupPermissionsAndMediaStore();
+
+  // Inisialisasi Format tanggal
+  await initializeDateFormatting('id_ID', null);
 
   runApp(const App());
 }

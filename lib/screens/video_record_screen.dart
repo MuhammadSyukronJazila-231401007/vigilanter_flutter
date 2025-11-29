@@ -4,8 +4,6 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:media_store_plus/media_store_plus.dart';
-import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:vigilanter_flutter/config/router.dart';
 
 class VideoRecordScreen extends StatefulWidget {
@@ -29,32 +27,36 @@ class _VideoRecordScreenState extends State<VideoRecordScreen> {
   @override
   void initState() {
     super.initState();
-    _initCamera();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initCamera();
+    });
   }
 
   Future<void> _initCamera() async {
-    _cameras = await availableCameras();
-
-    _controller = CameraController(
-      _cameras![_cameraIndex],
-      ResolutionPreset.medium, // stabil fps
-      enableAudio: true,
-      imageFormatGroup: ImageFormatGroup.yuv420,
-    );
-
-    await _controller!.initialize();
-
     try {
-      await _controller!.prepareForVideoRecording(); // memperbaiki fps
+      _cameras ??= await availableCameras();
+
+      _controller = CameraController(
+        _cameras![_cameraIndex],
+        ResolutionPreset.high,
+        enableAudio: true,
+      );
+
+      await _controller!.initialize();
+
+      // hanya panggil sekali
+      if (_controller!.value.isPreviewPaused == false) {
+        try {
+          await _controller!.prepareForVideoRecording();
+        } catch (_) {}
+      }
+
+      if (!mounted) return;
+      setState(() {});
     } catch (e) {
-      debugPrint("prepareForVideoRecording error: $e");
-    }
-
-    if (!mounted) return;
-
-    setState(() {});
-  }
-
+      debugPrint("Camera init error: $e");
+    }}
 
   // Flip camera
   Future<void> _flipCamera() async {
@@ -63,6 +65,10 @@ class _VideoRecordScreenState extends State<VideoRecordScreen> {
     _cameraIndex = (_cameraIndex + 1) % _cameras!.length;
 
     await _controller?.dispose();
+    _controller = null;
+    setState(() {});
+
+    await Future.delayed(const Duration(milliseconds: 400));
     await _initCamera();
   }
 

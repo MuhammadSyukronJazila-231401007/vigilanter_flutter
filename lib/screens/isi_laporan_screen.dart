@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vigilanter_flutter/config/router.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vigilanter_flutter/services/laporan_service.dart';
+import 'package:vigilanter_flutter/services/location_service.dart';
 import '../theme/app_colors.dart';
 
 class IsiLaporanScreen extends StatefulWidget {
@@ -24,6 +26,12 @@ class _IsiLaporanScreenState extends State<IsiLaporanScreen> {
 
   final List<String> laporanOptions = ['Laporan Manual', 'Bukti Tambahan'];
   String selectedLaporan = 'Laporan Manual';
+
+  bool _isSubmitting = false; // tambahkan state variable
+  final laporanService = LaporanService();
+
+  String? lokasi;
+  final locationService = LocationService();
 
  void onPratinjauVideoTap() {
     context.push('/video_player', extra: widget.videoPath);
@@ -49,13 +57,22 @@ class _IsiLaporanScreenState extends State<IsiLaporanScreen> {
         namaKejahatanController.text.length <= 20;
   }
 
+  Future<void> loadLocation() async {
+     final result = await locationService.getFormattedLocation();
+     if (mounted) {
+       setState(() {
+         lokasi = result;
+       });
+     }
+  }
+
   @override
   void initState() {
     super.initState();
 
     namaKejahatanController.addListener(() => setState(() {}));
     deskripsiController.addListener(() => setState(() {}));
-    // print("VIDEO PATH = ${widget.videoPath}");
+    loadLocation();
   }
 
   @override
@@ -165,7 +182,7 @@ class _IsiLaporanScreenState extends State<IsiLaporanScreen> {
                       //TODO: Sesuaikan dengan lokasi pengguna
                       Expanded(
                         child: Text(
-                          'Lokasi Anda : Simpang Tiga Kampus USU (3.567261, 98.660062)',
+                          lokasi ?? 'Memuat lokasi...',
                           style: TextStyle(
                             fontSize: screenWidth * 0.033,
                             color: Colors.white54,
@@ -397,25 +414,49 @@ class _IsiLaporanScreenState extends State<IsiLaporanScreen> {
                           ),
                         ),
                       ),
-                      onPressed: isFormValid
-                        ? () {
-                            // Anggap laporan berhasil dikirim
-                            context.go(AppRoutes.home);
-                          }
+                     onPressed: isFormValid && !_isSubmitting
+                        ? () async {
+                            setState(() => _isSubmitting = true);
+
+                            final success = await laporanService.kirimLaporan(
+                              userId: FirebaseAuth.instance.currentUser?.uid ?? 'anonymous',
+                              namaKejahatan: namaKejahatanController.text.trim(),
+                              deskripsi: deskripsiController.text.trim(),
+                              jenisLaporan: selectedLaporan,
+                              videoRealPath: widget.videoPath,   // content:// URI atau file path
+                              context: context,
+                            );
+
+                            setState(() => _isSubmitting = false);
+
+                            if (success && mounted) {
+                              context.go(AppRoutes.home);  // kembali ke home
+                            }
+                        }
                         : null,
-                      child: Text(
-                        'Kirim',
-                        style: TextStyle(
-                          color: isFormValid ? Colors.black : Color(0xFFFFE600) ,
-                          fontSize: screenWidth * 0.045,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                      child: _isSubmitting 
+                        ? const SizedBox(
+                            height: 22,
+                            width: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.black,
+                            ),
+                          )
+                        : Text(
+                            'Kirim',
+                            style: TextStyle(
+                              color: isFormValid ? Colors.black : Color(0xFFFFE600),
+                              fontSize: screenWidth * 0.045,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                     ),
                   ),
                   //SizedBox(height: screenHeight * 0.2,)
                 ],
               ),
+              
       
           ),
       

@@ -99,16 +99,22 @@ class _RegisterState extends State<Register> {
   }
 
   Future<void> tambahAkun() async {
-    await FirebaseFirestore.instance.collection("users").add({
-      "nama_depan": _namaDepanController.text,
-      "nama_belakang": _namaBelakangController.text,
-      "jenis_kelamin": selectedJenisKelamin,
-      "tanggal_lahir": _tanggalLahirController.text,
-      "nik": _nikController.text,
-      "no_telepon": _noTeleponController.text,
-      "email": _emailController.text,
-    });
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+  
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(uid)
+        .set({
+          "nama_depan": _namaDepanController.text,
+          "nama_belakang": _namaBelakangController.text,
+          "jenis_kelamin": selectedJenisKelamin,
+          "tanggal_lahir": _tanggalLahirController.text,
+          "nik": _nikController.text,
+          "no_telepon": _noTeleponController.text,
+          "email": _emailController.text,
+        });
   }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
