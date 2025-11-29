@@ -134,7 +134,7 @@ GoRouter createRouter() {
             routes: [
               GoRoute(
                 path: AppRoutes.peta,
-                builder: (context, state) => const PetaScreen(),
+                builder: (context, state) => PetaScreen(),
               ),
             ],
           ),
