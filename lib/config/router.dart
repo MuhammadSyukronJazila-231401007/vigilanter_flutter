@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:vigilanter_flutter/provider/app_state_provider.dart';
 import 'package:vigilanter_flutter/screens/notifikasi_screen.dart';
+import 'package:vigilanter_flutter/screens/video_player_screen.dart';
 import 'package:vigilanter_flutter/screens/video_record_screen.dart';
 
 import '../screens/isi_laporan_screen.dart';
@@ -28,7 +29,8 @@ class AppRoutes {
   static const peta = '/peta';
   static const notifikasi = '/notifikasi';
   static const isilaporan = '/isilaporan';
-    static const rekamVideo = '/rekam_video';
+  static const rekamVideo = '/rekam_video';
+  static const videoPlayer = '/video_player';
 }
 
 
@@ -88,12 +90,23 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: AppRoutes.isilaporan,
-        builder: (context, state) => IsiLaporanScreen(),
+        builder: (context, state) {
+          final videoPath = state.extra as String;
+          return IsiLaporanScreen(videoPath: videoPath);
+        },
       ),
-        GoRoute(
+      GoRoute(
         path: AppRoutes.rekamVideo,
         builder: (context, state) => const VideoRecordScreen(),
       ),
+      GoRoute(
+        path: AppRoutes.videoPlayer,
+        builder: (context, state) {
+          final videoPath = state.extra as String;
+          return VideoPlayerScreen(videoPath: videoPath);
+        },
+      ),
+
 
       // Shell dengan bottom nav
       StatefulShellRoute.indexedStack(

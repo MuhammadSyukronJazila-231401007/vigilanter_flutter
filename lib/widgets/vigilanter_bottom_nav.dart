@@ -52,8 +52,8 @@ class _VigilanterBottomNavState extends State<VigilanterBottomNav>
     final screenHeight = MediaQuery.of(context).size.height;
 
     final int itemCount = 3;
-    final double navHeight = (screenHeight * 0.075).clamp(54.0, 70.0);
-    final double circleDiameter = (screenWidth * 0.17).clamp(58.0, 92.0);
+    final double navHeight = (screenHeight * 0.55).clamp(54.0, 70.0);
+    final double circleDiameter = (screenWidth * 0.14).clamp(58.0, 92.0);
     final double circleRadius = circleDiameter / 2;
     final double itemWidth = screenWidth / itemCount;
 
@@ -70,7 +70,7 @@ class _VigilanterBottomNavState extends State<VigilanterBottomNav>
     ];
 
     return SizedBox(
-      height: navHeight + circleRadius,
+      height: circleRadius + navHeight * 0.2,
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.bottomCenter,

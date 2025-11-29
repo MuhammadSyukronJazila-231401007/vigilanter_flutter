@@ -18,9 +18,11 @@ class MainShell extends StatelessWidget {
       body: SafeArea(
         child: navigationShell,
       ),
-      bottomNavigationBar: VigilanterBottomNav(
-        currentIndex: navigationShell.currentIndex,
-        onTap: (index) => _onItemTapped(context, index),
+      bottomNavigationBar: SafeArea(
+        child: VigilanterBottomNav(
+          currentIndex: navigationShell.currentIndex,
+          onTap: (index) => _onItemTapped(context, index),
+        ),
       ),
     );
   }

@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:media_store_plus/media_store_plus.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:vigilanter_flutter/config/router.dart';
 
 class VideoRecordScreen extends StatefulWidget {
   const VideoRecordScreen({super.key});
@@ -34,15 +37,24 @@ class _VideoRecordScreenState extends State<VideoRecordScreen> {
 
     _controller = CameraController(
       _cameras![_cameraIndex],
-      ResolutionPreset.high,
+      ResolutionPreset.medium, // stabil fps
       enableAudio: true,
+      imageFormatGroup: ImageFormatGroup.yuv420,
     );
 
     await _controller!.initialize();
+
+    try {
+      await _controller!.prepareForVideoRecording(); // memperbaiki fps
+    } catch (e) {
+      debugPrint("prepareForVideoRecording error: $e");
+    }
+
     if (!mounted) return;
 
     setState(() {});
   }
+
 
   // Flip camera
   Future<void> _flipCamera() async {
@@ -89,8 +101,7 @@ class _VideoRecordScreenState extends State<VideoRecordScreen> {
   Future<void> _startRecording() async {
     if (_controller == null || !_controller!.value.isInitialized) return;
 
-    final dir = await getTemporaryDirectory();
-    final filePath = "${dir.path}/VID_${DateTime.now().millisecondsSinceEpoch}.mp4";
+    await _controller!.prepareForVideoRecording(); // WAJIB agar tidak slowmo
 
     await _controller!.startVideoRecording();
 
@@ -99,19 +110,62 @@ class _VideoRecordScreenState extends State<VideoRecordScreen> {
     setState(() {});
   }
 
+
+  // --- GANTI DENGAN INI ---
+
   // Stop and return file
   Future<void> _stopRecording() async {
     if (_controller == null || !_controller!.value.isRecordingVideo) return;
 
     _stopTimer();
 
-    final file = await _controller!.stopVideoRecording();
+    // stop repository recording, get the temporary recorded file
+    final XFile file = await _controller!.stopVideoRecording();
     _isRecording = false;
     setState(() {});
 
-    // Kembalikan file video ke screen sebelumnya
-    Navigator.pop(context, File(file.path));
+    try {
+      // simpan file tmp ke gallery/MediaStore
+      final SaveInfo? savedInfo = await _saveToGallery(file.path);
+
+      // optional: debug
+      debugPrint('SavedInfo: ${savedInfo?.toString()}');
+
+      // kembalikan ke screen Isilaporan: kirim uri string (jika tersedia) atau path temporer
+      final returnValue = savedInfo?.uri.toString() ?? file.path;
+      context.go(AppRoutes.isilaporan, extra: returnValue);
+
+    } catch (e, st) {
+      debugPrint('Error saving to gallery: $e\n$st');
+      // fallback: langsung kembalikan file.path jika gagal
+      Navigator.pop(context, file.path);
+    }
   }
+
+  /// Simpan file sementara (tempFilePath) ke gallery lewat MediaStore plugin
+  /// --> Mengembalikan SaveInfo? sesuai dokumentasi media_store_plus 0.1.3
+  Future<SaveInfo?> _saveToGallery(String tempFilePath) async {
+    final mediaStore = MediaStore();
+
+    // pastikan appFolder sudah di-set di main.dart (atau set di sini jika perlu)
+    // MediaStore.appFolder = "Vigilanter"; // (opsional) bila belum diatur di main()
+
+    // Pilih dirName yang sesuai. Untuk video biasanya pakai DirName.movies
+    // Jika ingin masuk Movies/Vigilanter -> relativePath: "Vigilanter"
+    final SaveInfo? result = await mediaStore.saveFile(
+      tempFilePath: tempFilePath,     // path file rekaman sementara (XFile.path)
+      dirType: DirType.video,         // tipe: video
+      dirName: DirName.movies,        // gunakan DirName.movies (enum)
+      relativePath: "Vigilanter",     // (opsional) folder/album di dalam Movies
+    );
+
+    debugPrint('media_store_plus.saveFile returned: $result');
+
+    return result;
+  }
+
+  // --- AKHIR PENGGANTIAN ---
+
 
   @override
   void dispose() {
@@ -124,95 +178,105 @@ class _VideoRecordScreenState extends State<VideoRecordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: _controller == null || !_controller!.value.isInitialized
-          ? const Center(child: CircularProgressIndicator(color: Colors.white))
-          : Stack(
-              children: [
-                // Camera Preview
-                Positioned.fill(
-                  child: CameraPreview(_controller!),
-                ),
-
-                // Instruction Text (Top)
-                Positioned(
-                  top: 20,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    color: Colors.black.withOpacity(0.5),
-                    child: const Text(
-                      "Fokuskan kamera pada wajah pelaku atau plat kendaraan dengan pencahayaan yang cukup.\n"
-                      "Selama merekam, sebutkan deskripsi kejadian secara langsung.",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
+      body: SafeArea(
+        child: _controller == null || !_controller!.value.isInitialized
+            ? const Center(child: CircularProgressIndicator(color: Colors.white))
+            : Stack(
+                children: [
+                  // Camera Preview
+                  Positioned.fill(
+                    child: FittedBox(
+                      fit: BoxFit.cover, // memenuhi layar tapi tetap proporsional
+                      child: SizedBox(
+                        width: _controller!.value.previewSize!.height,
+                        height: _controller!.value.previewSize!.width,
+                        child: CameraPreview(_controller!),
                       ),
                     ),
                   ),
-                ),
 
-                // Timer
-                if (_isRecording)
+        
+                  // Instruction Text (Top)
                   Positioned(
-                    top: 110,
-                    left: 20,
-                    child: Text(
-                      _formatTime(_seconds),
-                      style: const TextStyle(
-                        color: Colors.red,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-
-                // Flash button
-                Positioned(
-                  top: 120,
-                  right: 20,
-                  child: IconButton(
-                    icon: Icon(
-                      _flashOn ? Icons.flash_on : Icons.flash_off,
-                      size: 32,
-                      color: Colors.white,
-                    ),
-                    onPressed: _toggleFlash,
-                  ),
-                ),
-
-                // Flip camera
-                Positioned(
-                  top: 180,
-                  right: 20,
-                  child: IconButton(
-                    icon: const Icon(Icons.cameraswitch, size: 32, color: Colors.white),
-                    onPressed: _flipCamera,
-                  ),
-                ),
-
-                // Bottom Record Button
-                Positioned(
-                  bottom: 40,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: _isRecording ? _stopRecording : _startRecording,
-                      child: Container(
-                        width: 85,
-                        height: 85,
-                        decoration: BoxDecoration(
-                          color: _isRecording ? Colors.red : Colors.white,
-                          shape: BoxShape.circle,
+                    top: 20,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      color: Colors.black.withOpacity(0.5),
+                      child: const Text(
+                        "Fokuskan kamera pada wajah pelaku atau plat kendaraan dengan pencahayaan yang cukup.\n"
+                        "Selama merekam, sebutkan deskripsi kejadian secara langsung.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
+        
+                  // Timer
+                  if (_isRecording)
+                    Positioned(
+                      top: 110,
+                      left: 20,
+                      child: Text(
+                        _formatTime(_seconds),
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+        
+                  // Flash button
+                  Positioned(
+                    top: 120,
+                    right: 20,
+                    child: IconButton(
+                      icon: Icon(
+                        _flashOn ? Icons.flash_on : Icons.flash_off,
+                        size: 32,
+                        color: Colors.white,
+                      ),
+                      onPressed: _toggleFlash,
+                    ),
+                  ),
+        
+                  // Flip camera
+                  Positioned(
+                    top: 180,
+                    right: 20,
+                    child: IconButton(
+                      icon: const Icon(Icons.cameraswitch, size: 32, color: Colors.white),
+                      onPressed: _flipCamera,
+                    ),
+                  ),
+        
+                  // Bottom Record Button
+                  Positioned(
+                    bottom: 40,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: GestureDetector(
+                        onTap: _isRecording ? _stopRecording : _startRecording,
+                        child: Container(
+                          width: 85,
+                          height: 85,
+                          decoration: BoxDecoration(
+                            color: _isRecording ? Colors.red : Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+      ),
     );
   }
 }
