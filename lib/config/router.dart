@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:vigilanter_flutter/models/laporan_model.dart';
 import 'package:vigilanter_flutter/provider/app_state_provider.dart';
 import 'package:vigilanter_flutter/screens/notifikasi_screen.dart';
 import 'package:vigilanter_flutter/screens/video_player_screen.dart';
@@ -82,7 +83,10 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: AppRoutes.deskripsiLaporan,
-        builder: (context, state) => const DetailLaporan(),
+        builder: (context, state) {
+          final laporan = state.extra as LaporanModel;
+          return DetailLaporan(laporan: laporan);
+        },
       ),
       GoRoute(
         path: AppRoutes.notifikasi,

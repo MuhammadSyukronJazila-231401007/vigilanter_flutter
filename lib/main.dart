@@ -8,6 +8,7 @@ import 'package:vigilanter_flutter/config/router.dart';
 import 'package:vigilanter_flutter/provider/app_state_provider.dart';
 import 'package:vigilanter_flutter/provider/auth_provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import './provider/laporan_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -60,6 +61,7 @@ class App extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AppStateProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => LaporanProvider()),
       ],
       child: MaterialApp.router(
         title: 'Vigilanter',

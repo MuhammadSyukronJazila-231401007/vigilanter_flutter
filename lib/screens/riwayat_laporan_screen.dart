@@ -1,10 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-import '../data/data_laporan.dart';
+import 'package:provider/provider.dart';
+import 'package:vigilanter_flutter/provider/laporan_provider.dart';
+import 'package:vigilanter_flutter/widgets/laporan_list.dart';
 import '../theme/app_colors.dart';
-import '../widgets/Laporan_list.dart';
-
-
 
 class RiwayatLaporan extends StatefulWidget {
   const RiwayatLaporan({super.key});
@@ -14,22 +13,24 @@ class RiwayatLaporan extends StatefulWidget {
 }
 
 class _RiwayatLaporanScreenState extends State<RiwayatLaporan> {
+  @override
+  void initState() {
+    super.initState();
 
-
-  // Fungsi untuk menghapus laporan
-  void _hapusLaporan(List<Laporan> list, int index) {
-    setState(() {
-      list.removeAt(index);
+    Future.microtask(() {
+      final userId = FirebaseAuth.instance.currentUser!.uid;
+      context.read<LaporanProvider>().loadLaporan(userId);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<LaporanProvider>();
+
     final size = MediaQuery.of(context).size;
     final paddingHorizontal = size.width * 0.05;
     final paddingVertical = size.height * 0.02;
     final titleFontSize = size.width * 0.08;
-    final sectionTitleSize = size.width * 0.05;
 
     return Scaffold(
       backgroundColor: AppColors.biruVigilanter,
@@ -49,15 +50,27 @@ class _RiwayatLaporanScreenState extends State<RiwayatLaporan> {
                 ),
               ),
               SizedBox(height: paddingVertical * 2),
+
+              // LIST DARI PROVIDER
               Expanded(
-                child: LaporanList(
-                  laporanTerkirim: laporanTerkirim,
-                  laporanSelesai: laporanSelesai,
-                  onHapusTerkirim: (index) => _hapusLaporan(laporanTerkirim, index),
-                  onHapusSelesai: (index) => _hapusLaporan(laporanSelesai, index),
-                  paddingVertical: paddingVertical,
-                  sectionTitleSize: sectionTitleSize,
-                ),
+                child: (provider.laporanTerkirim.isEmpty &&
+                        provider.laporanSelesai.isEmpty)
+                    ? const Center(
+                        child: Text(
+                          "Belum ada riwayat laporan",
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      )
+                    : LaporanList(
+                        laporanTerkirim: provider.laporanTerkirim,
+                        laporanSelesai: provider.laporanSelesai,
+                        onHapusTerkirim: (index) =>
+                            provider.batalkan(index),
+                        onHapusSelesai: (index) =>
+                            provider.hapus(index, false),
+                        paddingVertical: 12,
+                        sectionTitleSize: 18,
+                      ),
               ),
             ],
           ),
