@@ -16,7 +16,7 @@ class _PetaPageState extends State<PetaScreen> {
   final locationService = LocationService();
 
   LatLng _currentPos = LatLng(3.567261, 98.650062);
-
+  Set<Marker> markers = {};
 
 
   final String mapStyle = '''
@@ -46,6 +46,18 @@ class _PetaPageState extends State<PetaScreen> {
   void initState() {
     super.initState();
     _loadUserLocation();
+    markers.add(
+      Marker(
+        markerId: MarkerId("fixedPin"),
+        position: _currentPos,
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+          BitmapDescriptor.hueRed,
+        ),
+
+      ),
+    );
+    print("Markers count: ${markers.length}");
+
   }
 
   Future<void> _loadUserLocation() async {
@@ -54,7 +66,7 @@ class _PetaPageState extends State<PetaScreen> {
       if (position != null){
         _currentPos = LatLng(position.latitude, position.longitude);
       }
-      });
+    });
   }
 
 
@@ -75,20 +87,15 @@ class _PetaPageState extends State<PetaScreen> {
             style: mapStyle,
             onMapCreated: (controller) => mapController = controller,
             myLocationEnabled: false,
-            onCameraMove: (CameraPosition pos) {
-              setState(() {
-                _currentPos = pos.target;
-              });
-            },
-            onCameraIdle: () async {
-              final LatLng center = await mapController!.getLatLng(
-                ScreenCoordinate(
-                  x: (MediaQuery.of(context).size.width / 2).round(),
-                  y: (MediaQuery.of(context).size.height / 2).round(),
-                ),
-              );
-              setState(() => _currentPos = center);
-              },
+            // onCameraIdle: () async {
+            //   final LatLng center = await mapController!.getLatLng(
+            //     ScreenCoordinate(
+            //       x: (MediaQuery.of(context).size.width / 2).round(),
+            //       y: (MediaQuery.of(context).size.height / 2).round(),
+            //     ),
+            //   );
+            //   setState(() => _currentPos = center);
+            // },
           ),
 
           /// --------------------- SEARCH BAR + WAKTU ---------------------
@@ -165,7 +172,7 @@ class _PetaPageState extends State<PetaScreen> {
                 GestureDetector(
                   onTap: (){}, //TODO: Tombol titik rawan
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.035, vertical: screenWidth * 0.02),
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03, vertical: screenWidth * 0.02),
                     decoration: BoxDecoration(
                       color: Colors.red,
                       borderRadius: BorderRadius.circular(screenWidth * 0.025),
@@ -189,20 +196,6 @@ class _PetaPageState extends State<PetaScreen> {
               ],
             ),
           ),
-
-          /// --------------------- PIN LOKASI ---------------------
-          Center(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: screenWidth * 0.04),
-              child: Icon(
-                Icons.location_pin,
-                color: Colors.redAccent,
-                size: screenWidth * 0.15,
-              ),
-            ),
-          ),
-
-
         ],
       ),
     );
@@ -210,23 +203,3 @@ class _PetaPageState extends State<PetaScreen> {
 }
 
 
-
-// import 'package:flutter/material.dart';
-// import '../theme/app_colors.dart';
-//
-// class PetaScreen extends StatelessWidget {
-//   const PetaScreen({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: AppColors.biruVigilanter,
-//       body: const Center(
-//         child: Text(
-//           "Halaman Peta",
-//           style: TextStyle(color: Colors.white, fontSize: 18),
-//         ),
-//       ),
-//     );
-//   }
-// }
