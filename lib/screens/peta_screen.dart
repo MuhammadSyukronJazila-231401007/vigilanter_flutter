@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:vigilanter_flutter/services/location_service.dart';
@@ -8,97 +9,96 @@ class PetaScreen extends StatefulWidget {
   State<PetaScreen> createState() => _PetaPageState();
 }
 
-
 class _PetaPageState extends State<PetaScreen> {
   GoogleMapController? mapController;
   TextEditingController cariLokasi = TextEditingController();
-
   final locationService = LocationService();
 
   LatLng _currentPos = LatLng(3.567261, 98.650062);
   Set<Marker> markers = {};
 
-
-  final String mapStyle = '''
-[
-  {
-    "elementType": "geometry",
-    "stylers": [{"color": "#1d1d2b"}]
-  },
-  {
-    "elementType": "labels.text.fill",
-    "stylers": [{"color": "#ffffff"}]
-  },
-  {
-    "featureType": "road",
-    "elementType": "geometry",
-    "stylers": [{"color": "#303046"}]
-  },
-  {
-    "featureType": "water",
-    "elementType": "geometry",
-    "stylers": [{"color": "#1a1a27"}]
-  }
-]
-''';
+  // final String mapStyle = '''
+  // [ ... gaya map kamu ... ]
+  // ''';
 
   @override
   void initState() {
     super.initState();
     _loadUserLocation();
-    markers.add(
-      Marker(
-        markerId: MarkerId("fixedPin"),
-        position: _currentPos,
-        icon: BitmapDescriptor.defaultMarkerWithHue(
-          BitmapDescriptor.hueRed,
-        ),
-
-      ),
-    );
-    print("Markers count: ${markers.length}");
-
   }
 
+  /// AMBIL LOKASI USER → UPDATE MARKER
   Future<void> _loadUserLocation() async {
     Position? position = await locationService.getPosition();
-    setState(() {
-      if (position != null){
-        _currentPos = LatLng(position.latitude, position.longitude);
-      }
-    });
-  }
 
+    if (position == null) return;
+
+    _currentPos = LatLng(position.latitude, position.longitude);
+
+    setState(() {
+      markers.clear();
+      markers.add(
+        Marker(
+          markerId: MarkerId("userPos"),
+          position: _currentPos,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+
+          // Kalau Marker diklik
+          onTap: () {
+            debugPrint("Marker lokasi user diklik!");
+
+            // ScaffoldMessenger.of(context).showSnackBar(
+            //   SnackBar(content: Text("Lokasi User")),
+            // );
+          },
+
+          // Info Window (muncul di atas marker)
+          infoWindow: InfoWindow(
+            title: "Lokasi User",
+            snippet: "Ini adalah lokasi Anda saat ini",
+          ),
+        ),
+      );
+    });
+
+    // GERAKKAN KAMERA KE LOKASI USER
+    if (mapController != null) {
+      mapController!.animateCamera(
+        CameraUpdate.newLatLngZoom(_currentPos, 16),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          /// --------------------- MAP BACKGROUND ---------------------
           GoogleMap(
             initialCameraPosition: CameraPosition(
               target: _currentPos,
-              zoom: screenWidth * 0.04,
+              zoom: 16,                // ZOOM NORMAL, tidak pakai screenWidth
             ),
-            style: mapStyle,
-            onMapCreated: (controller) => mapController = controller,
-            myLocationEnabled: false,
-            // onCameraIdle: () async {
-            //   final LatLng center = await mapController!.getLatLng(
-            //     ScreenCoordinate(
-            //       x: (MediaQuery.of(context).size.width / 2).round(),
-            //       y: (MediaQuery.of(context).size.height / 2).round(),
-            //     ),
-            //   );
-            //   setState(() => _currentPos = center);
-            // },
+            markers: markers,
+            myLocationEnabled: false, // kamu pakai marker manual
+            onMapCreated: (controller) async {
+              mapController = controller;
+
+              // apply map style
+              // await controller.setMapStyle(mapStyle);
+
+              // setelah map siap → pindahkan kamera (jika lokasinya sudah didapat)
+              controller.animateCamera(
+                CameraUpdate.newLatLngZoom(_currentPos, 16),
+              );
+            },
           ),
 
-          /// --------------------- SEARCH BAR + WAKTU ---------------------
+           /// --------------------- SEARCH BAR + WAKTU ---------------------
           Positioned(
             top: 40,
             left: 20,
@@ -162,9 +162,28 @@ class _PetaPageState extends State<PetaScreen> {
                         style: TextStyle(color: Color(0xFF808094)),
                       ),
                       SizedBox(width: screenWidth * 0.01),
-                      Icon(Icons.copy, size: 16, color: Color(0xFF808094)),
+                      GestureDetector(
+                        onTap: () {
+                          final text =
+                              "${_currentPos.latitude.toStringAsFixed(6)}, ${_currentPos.longitude.toStringAsFixed(6)}";
+
+                          Clipboard.setData(ClipboardData(text: text));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Koordinat disalin ke clipboard!"),
+                              backgroundColor: Colors.green,
+                              behavior: SnackBarBehavior.floating,
+                              duration: Duration(seconds: 2),
+                              margin: EdgeInsets.only(
+                                bottom: screenHeight * 0.033,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Icon(Icons.copy, size: 16, color: Color(0xFF808094)),
+                      ),
                     ],
-                  ),
+                  )
                 ),
                 Spacer(),
 
@@ -201,5 +220,4 @@ class _PetaPageState extends State<PetaScreen> {
     );
   }
 }
-
 

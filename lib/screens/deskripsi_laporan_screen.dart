@@ -19,10 +19,18 @@ class DetailLaporan extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
     final double baseFont = screenWidth * 0.035;
 
-    final parts = laporan.waktu.split('(');
+    final partWaktu = laporan.waktu.split('(');
 
-    final tanggal = parts[0].trim();                     // "Minggu, 30 November 2025"
-    final jam = "(" + parts[1].trim();                   // "(18:07:38 WIB)"
+    final tanggal = partWaktu[0].trim();                     // "Minggu, 30 November 2025"
+    final jam = "(" + partWaktu[1].trim();                   // "(18:07:38 WIB)"
+
+    List<String> partAlamat = laporan.tempat.split(',');
+
+    String jalan = partAlamat[0].trim();
+    String kelurahan = partAlamat[1].trim();
+    String kecamatan = partAlamat[2].trim();
+    String kota = partAlamat[3].trim();
+    String provinsi = partAlamat[4].trim();
     
     final laporanProvider = context.read<LaporanProvider>();
     final isDiajukan = laporan.status.trim().toLowerCase() == "diajukan";
@@ -87,9 +95,9 @@ class DetailLaporan extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              laporan.namaKejahatan,
+                              "$jalan, $kelurahan, $kecamatan",
                               style: TextStyle(
-                                color: Colors.white70,
+                                color: Colors.white,
                                 fontSize: baseFont * 1.05,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -100,7 +108,8 @@ class DetailLaporan extends StatelessWidget {
                                   child: Text(
                                     "${laporan.latitude}, ${laporan.longitude}",
                                     style: TextStyle(
-                                      color: Colors.white.withValues(alpha: 0.4),
+                                      // color: Colors.white.withValues(alpha: 0.4),
+                                      color: Colors.white70,
                                       fontSize: baseFont * 0.95,
                                     ),
                                   ),
@@ -116,13 +125,18 @@ class DetailLaporan extends StatelessWidget {
 
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text("Koordinat tersalin!"),
+                                        content: Text("Koordinat disalin ke clipboard!"),
+                                        backgroundColor: Colors.green,
+                                        behavior: SnackBarBehavior.floating,
                                         duration: Duration(seconds: 2),
+                                        margin: EdgeInsets.only(
+                                          bottom: screenHeight * 0.015,
+                                        ),
                                       ),
                                     );
                                   },
                                   child: Icon(
-                                    Icons.save,
+                                    Icons.copy,
                                     size: screenWidth * 0.045,
                                     color: Colors.white.withValues(alpha: 0.7),
                                   ),

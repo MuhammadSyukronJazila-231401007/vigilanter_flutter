@@ -29,8 +29,11 @@ class _RegisterState extends State<Register> {
   final _passwordController = TextEditingController();
   final _confirmpasswordController = TextEditingController();
 
+  bool _showPassword = false;
+  bool _showConfirmPassword = false;
   bool _isLoading = false;
   bool isChecked = false;
+
   final List<String> jenisKelaminList = ['Laki-laki', 'Perempuan'];
   String? selectedJenisKelamin;
 
@@ -123,10 +126,11 @@ class _RegisterState extends State<Register> {
 
     return Scaffold(
       backgroundColor: AppColors.biruVigilanter,
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: EdgeInsets.all(screenWidth * 0.09),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -214,14 +218,30 @@ class _RegisterState extends State<Register> {
         
                 SizedBox(height: screenHeight * 0.025),
         
-                // Tanggal Lahir
                 _buildControllerTextField(
                   hint: 'Tanggal Lahir (hh/bb/tttt)',
                   controller: _tanggalLahirController,
                   loading: !_isLoading,
                   screenWidth: screenWidth,
                   screenHeight: screenHeight,
-                  //readOnly: true,
+                  enableDatePicker: true,
+                  onDateTap: () async {
+                    DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime(2000),
+                      firstDate: DateTime(1950),
+                      lastDate: DateTime.now(),
+                      helpText: "Pilih Tanggal Lahir",
+                    );
+
+                    if (picked != null) {
+                      _tanggalLahirController.text =
+                          "${picked.day.toString().padLeft(2, '0')}/"
+                          "${picked.month.toString().padLeft(2, '0')}/"
+                          "${picked.year}";
+                      setState(() {});
+                    }
+                  },
                 ),
         
                 SizedBox(height: screenHeight * 0.025),
@@ -262,20 +282,31 @@ class _RegisterState extends State<Register> {
                   loading: !_isLoading,
                   screenWidth: screenWidth,
                   screenHeight: screenHeight,
+                  obscureText: !_showPassword,
+                  isPassword: true,
+                  onTogglePassword: () {
+                    setState(() {
+                      _showPassword = !_showPassword;
+                    });
+                  },
                 ),
         
-        
                 SizedBox(height: screenHeight * 0.025),
-        
                 _buildControllerTextField(
                   hint: 'Konfirmasi Kata Sandi Baru',
                   controller: _confirmpasswordController,
                   loading: !_isLoading,
                   screenWidth: screenWidth,
                   screenHeight: screenHeight,
-                  obscureText: true,
+                  obscureText: !_showConfirmPassword,
+                  isPassword: true,
+                  onTogglePassword: () {
+                    setState(() {
+                      _showConfirmPassword = !_showConfirmPassword;
+                    });
+                  },
                 ),
-        
+    
                 SizedBox(height: screenHeight * 0.03),
         
                 // Checkbox + teks
@@ -380,6 +411,7 @@ class _RegisterState extends State<Register> {
   // Widget reusable untuk input field
 
 }
+
 Widget _buildControllerTextField({
   required String hint,
   required double screenWidth,
@@ -388,12 +420,17 @@ Widget _buildControllerTextField({
   bool loading = false,
   bool obscureText = false,
   bool readOnly = false,
+  bool isPassword = false,
+  VoidCallback? onTogglePassword,
+  bool enableDatePicker = false,
+  VoidCallback? onDateTap,
 }) {
   return TextField(
     controller: controller,
     enabled: loading,
     obscureText: obscureText,
-    readOnly: readOnly,
+    readOnly: readOnly || enableDatePicker, // tanggal otomatis readOnly
+    onTap: enableDatePicker ? onDateTap : null,
     decoration: InputDecoration(
       hintText: hint,
       hintStyle: TextStyle(
@@ -403,13 +440,33 @@ Widget _buildControllerTextField({
       filled: true,
       fillColor: AppColors.biruGelap,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(21), // tidak terlalu rounded
+        borderRadius: BorderRadius.circular(21),
         borderSide: BorderSide.none,
       ),
       contentPadding: EdgeInsets.symmetric(
         vertical: screenHeight * 0.012,
         horizontal: screenWidth * 0.05,
       ),
+
+      // 👇 ikon mata untuk password
+      suffixIcon: isPassword
+          ? IconButton(
+              icon: Icon(
+                obscureText
+                    ? Icons.visibility_off_rounded
+                    : Icons.visibility_rounded,
+                color: AppColors.abuTua,
+                size: screenWidth * 0.06,
+              ),
+              onPressed: onTogglePassword,
+            )
+          : enableDatePicker
+              ? Icon(
+                  Icons.calendar_today_rounded,
+                  color: AppColors.abuTua,
+                  size: screenWidth * 0.055,
+                )
+              : null,
     ),
     style: TextStyle(
       fontSize: screenWidth * 0.037,
