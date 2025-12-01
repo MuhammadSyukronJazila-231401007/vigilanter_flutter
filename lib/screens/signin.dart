@@ -153,7 +153,7 @@ class _SigninState extends State<Signin> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "Masuk Le",
+                    "Masuk",
                     style: TextStyle(
                       fontSize: screenWidth * (isLargeScreen ? 0.06 : 0.08),
                       color: Colors.white,

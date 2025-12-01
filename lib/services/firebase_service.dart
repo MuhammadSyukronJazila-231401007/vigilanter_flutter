@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import '../models/laporan_model.dart';
 
 class FirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  static FirebaseStorage _storage = FirebaseStorage.instance;
 
   /// Upload video ke Firebase Storage
   Future<String?> uploadVideo(File videoFile, String userId) async {
@@ -59,4 +61,68 @@ class FirebaseService {
       return false;
     }
   }
+
+  // Ambil semua laporan milik user berdasarkan user_id
+  Future<List<LaporanModel>> getRiwayatLaporan(String userId) async {
+    try {
+      final query = await _firestore
+          .collection("reports")
+          .where("user_id", isEqualTo: userId)
+          .get();
+    
+      return query.docs
+          .map((doc) => LaporanModel.fromFirestore(doc.id, doc.data()))
+          .toList();
+    } catch (e) {
+      debugPrint("Error getRiwayatLaporan: $e");
+      return [];
+    }
+  }
+
+  Future<bool> hapusLaporan(String laporanId) async {
+    try {
+      await _firestore
+          .collection('reports')
+          .doc(laporanId)
+          .delete();
+
+      return true;
+    } catch (e) {
+      debugPrint("Error hapus laporan: $e");
+      return false;
+    }
+  }
+
+  Future<bool> batalkanLaporan(String laporanId) async {
+     try {
+       await _firestore
+           .collection('reports')
+           .doc(laporanId)
+           .update({"status": "Dibatalkan"});
+       return true;
+     } catch (e) {
+       debugPrint("Error batalkan laporan: $e");
+       return false;
+     }
+  }
+
+   /// Cek apakah video lokal masih ada
+  static Future<bool> isLocalVideoExists(String localPath) async {
+    try {
+      final file = File.fromUri(Uri.parse(localPath));
+      return await file.exists();
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Ambil download URL dari Firebase Storage (jika ingin refresh)
+  static Future<String?> getFreshDownloadUrl(String firebasePath) async {
+    try {
+      return await _storage.ref(firebasePath).getDownloadURL();
+    } catch (_) {
+      return null;
+    }
+  }
+
 }

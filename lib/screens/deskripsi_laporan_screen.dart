@@ -1,15 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:vigilanter_flutter/models/laporan_model.dart';
+import 'package:vigilanter_flutter/provider/laporan_provider.dart';
+import 'package:vigilanter_flutter/widgets/video_player_widget.dart';
 
 import '../theme/app_colors.dart';
 
 class DetailLaporan extends StatelessWidget {
-  const DetailLaporan({super.key});
+  final LaporanModel laporan;
+
+  const DetailLaporan({super.key, required this.laporan});
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final double baseFont = screenWidth * 0.035;
+
+    final parts = laporan.waktu.split('(');
+
+    final tanggal = parts[0].trim();                     // "Minggu, 30 November 2025"
+    final jam = "(" + parts[1].trim();                   // "(18:07:38 WIB)"
+    
+    final laporanProvider = context.read<LaporanProvider>();
+    final isDiajukan = laporan.status.trim().toLowerCase() == "diajukan";
 
     return Scaffold(
       backgroundColor: AppColors.biruVigilanter,
@@ -33,16 +49,16 @@ class DetailLaporan extends StatelessWidget {
                           size: screenWidth * 0.09,
                         ),
                         onPressed: () {
-                          //Navigator.pop(context);
+                          context.pop();
                         },
                       ),
                     ],
                   ),
                   SizedBox(height: screenHeight * 0.025),
 
-                  // Judul laporan
+                  // Nama Kejahatan
                   Text(
-                    "Begal Motor",
+                    laporan.namaKejahatan,
                     style: TextStyle(
                       fontSize: screenWidth * 0.065,
                       fontWeight: FontWeight.bold,
@@ -71,7 +87,7 @@ class DetailLaporan extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Simpang Tiga Kampus USU",
+                              laporan.namaKejahatan,
                               style: TextStyle(
                                 color: Colors.white70,
                                 fontSize: baseFont * 1.05,
@@ -82,20 +98,37 @@ class DetailLaporan extends StatelessWidget {
                               children: [
                                 Flexible(
                                   child: Text(
-                                    "3.567261, 98.650062",
+                                    "${laporan.latitude}, ${laporan.longitude}",
                                     style: TextStyle(
-                                      color:
-                                          Colors.white.withValues(alpha: 0.4),
+                                      color: Colors.white.withValues(alpha: 0.4),
                                       fontSize: baseFont * 0.95,
                                     ),
                                   ),
                                 ),
                                 SizedBox(width: screenWidth * 0.015),
-                                Icon(Icons.save,
+
+                                // TOMBOL COPY
+                                GestureDetector(
+                                  onTap: () async {
+                                    final text = "${laporan.latitude}, ${laporan.longitude}";
+
+                                    await Clipboard.setData(ClipboardData(text: text));
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text("Koordinat tersalin!"),
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+                                  },
+                                  child: Icon(
+                                    Icons.save,
                                     size: screenWidth * 0.045,
-                                    color: Colors.white.withValues(alpha: 0.7))
+                                    color: Colors.white.withValues(alpha: 0.7),
+                                  ),
+                                ),
                               ],
-                            )
+                            )                          
                           ],
                         ),
                       )
@@ -122,7 +155,7 @@ class DetailLaporan extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Jumat, 21 Juni 2024",
+                            tanggal,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: baseFont * 1.05,
@@ -130,7 +163,7 @@ class DetailLaporan extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "(21:03:21 WIB)",
+                            jam,
                             style: TextStyle(
                               color: Colors.white70,
                               fontSize: baseFont * 0.95,
@@ -154,7 +187,7 @@ class DetailLaporan extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(width: screenWidth * 0.22),
+                      SizedBox(width: screenWidth * 0.15),
                       Text(
                         "Status",
                         style: TextStyle(
@@ -170,7 +203,7 @@ class DetailLaporan extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Laporan Manual",
+                       laporan.jenisLaporan,
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: baseFont,
@@ -188,7 +221,7 @@ class DetailLaporan extends StatelessWidget {
                               BorderRadius.circular(screenHeight * 0.05),
                         ),
                         child: Text(
-                          "Diajukan",
+                          laporan.status,
                           style: TextStyle(
                             color: Colors.black87,
                             fontSize: baseFont,
@@ -224,7 +257,7 @@ class DetailLaporan extends StatelessWidget {
                   ),
                   SizedBox(height: screenHeight * 0.01),
                   Text(
-                    "Pada tanggal 21 Juni 2024 sekitar pukul 20.50 WIB, telah terjadi kejahatan begal di Simpang Tiga Kampus USU. Korban dihentikan oleh dua orang tidak dikenal yang mengendarai sepeda motor tanpa plat nomor. Kedua pelaku mengenakan helm full face dan jaket hitam. Pelaku mengancam korban dengan senjata tajam dan memaksa menyerahkan motornya. Setelah mengambil barang-barang milik korban, pelaku melarikan diri ke arah Jalan Dr. Mansyur. Korban tidak mengalami luka fisik namun mengalami shock dan trauma akibat kejadian tersebut.",
+                    laporan.deskripsi,
                     style: TextStyle(
                       color: Colors.white70,
                       height: 1.5,
@@ -242,14 +275,26 @@ class DetailLaporan extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: screenHeight * 0.01),
-                  Center(
-                    child: Icon(
-                      Icons.image,
-                      color: Colors.white54,
-                      size: screenWidth * 0.3,
+                  VideoPlayerWidget(
+                    localPath: laporan.videoRealPath,
+                    url: laporan.videoDownloadUrl,
+                  ),
+                  SizedBox(height: screenHeight * 0.04),
+
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: screenHeight * 0.01,
+                      horizontal: screenWidth * 0.012,
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: screenHeight * 0.05,
+                      child: isDiajukan
+                          ? _btnBatalkan(context, laporanProvider, laporan.id)
+                          : _btnHapus(context, laporanProvider, laporan.id),
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.1),
+                  SizedBox(height: screenHeight * 0.08),
                 ],
               ),
             ),
@@ -258,4 +303,144 @@ class DetailLaporan extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _btnBatalkan(BuildContext context, LaporanProvider provider, String laporan_id) {
+  return TextButton(
+    style: TextButton.styleFrom(
+      backgroundColor: Colors.red,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+    onPressed: () async {
+      final konfirm = await _showKonfirmasi(
+        context,
+        title: "Batalkan Laporan",
+        message: "Apakah Anda yakin ingin membatalkan laporan ini?",
+        confirmText: "Batalkan",
+        isDestructive: true,
+      );
+
+      if (konfirm == true) {
+        final index = provider.laporanTerkirim.indexWhere((e) => e.id == laporan_id);
+
+        if (index != -1) await provider.batalkan(index);
+
+        if (context.mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text("Laporan berhasil dibatalkan"),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.only(
+                bottom: 70,
+                left: 16,
+                right: 16,
+              ),
+            ),
+          );
+        }
+      }
+    },
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: const [
+        Icon(Icons.not_interested, color: Colors.white),
+        SizedBox(width: 10),
+        Text(
+          "Batalkan Laporan",
+          style: TextStyle(color: Colors.white, fontSize: 16),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _btnHapus(BuildContext context, LaporanProvider provider, String laporan_id) {
+  return TextButton(
+    style: TextButton.styleFrom(
+      backgroundColor: Colors.white.withValues(alpha: 0.5),
+      side: const BorderSide(color: Colors.white54),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+    onPressed: () async {
+      final konfirm = await _showKonfirmasi(
+        context,
+        title: "Hapus Laporan",
+        message: "Apakah Anda yakin ingin menghapus laporan ini?",
+        confirmText: "Hapus",
+        isDestructive: true,
+      );
+
+      if (konfirm == true) {
+        // tentukan index di daftar selesai
+        final index = provider.laporanSelesai.indexWhere((e) => e.id == laporan_id);
+
+        if (index != -1) await provider.hapus(index, false);
+
+        if (context.mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text("Laporan berhasil dihapus"),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.only(
+                bottom: 70,
+                left: 16,
+                right: 16,
+              ),
+            ),
+          );
+        }
+      }
+    },
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: const [
+        Icon(Icons.delete_outline_outlined, color: Color(0xFF000229)),
+        SizedBox(width: 10),
+        Text(
+          "Hapus Laporan",
+          style: TextStyle(color: Color(0xFF000229), fontSize: 16),
+        ),
+      ],
+    ),
+  );
+}
+
+Future<bool?> _showKonfirmasi(
+  BuildContext context, {
+  required String title,
+  required String message,
+  required String confirmText,
+  bool isDestructive = false,
+}) {
+  return showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text("Batal"),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(
+            confirmText,
+            style: TextStyle(
+              color: isDestructive ? Colors.red : Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }
