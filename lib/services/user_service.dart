@@ -36,4 +36,50 @@ class UserService {
       return null;
     }
   }
+  /// Ambil email
+  Future<String?> getEmail(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+
+      if (!doc.exists) return null;
+
+      final email = doc.data()?['email'] ?? "";
+
+      return "$email".trim();
+    } catch (e) {
+      print("Error getEmail: $e");
+      return null;
+    }
+  }
+  ///Ambil nomor telepon
+  Future<String?> getNoTelp(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+
+      if (!doc.exists) return null;
+
+      final noTelp = doc.data()?['no_telepon'] ?? "";
+
+      return "$noTelp".trim();
+    } catch (e) {
+      print("Error getNoTelp: $e");
+      return null;
+    }
+  }
+  ///Update data
+  Future<void> updateData(String uid, String field, String data) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .update({
+        field: data
+      });
+    } catch (e) {
+      print("Error updateData: $e");
+    }
+
+
+
+  }
 }

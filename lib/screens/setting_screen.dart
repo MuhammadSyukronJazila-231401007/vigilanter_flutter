@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:vigilanter_flutter/config/router.dart';
 import '../provider/auth_provider.dart';
+import '../services/user_service.dart';
 import '../theme/app_colors.dart';
 import 'package:go_router/go_router.dart';
 
@@ -15,6 +18,46 @@ class _SettingScreenState extends State<SettingScreen> {
   bool notification = false;
   bool location = false;
   bool camera = false;
+
+  String? userName;
+  String? email;
+  final userService = UserService();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAllPermissions();
+    loadData();
+  }
+
+  Future<void> _checkAllPermissions() async {
+    final loc = await Permission.location.status;
+    final cam = await Permission.camera.status;
+    final noti = await Permission.notification.status;
+
+    setState(() {
+      location = loc.isGranted;
+      camera = cam.isGranted;
+      notification = noti.isGranted;
+    });
+  }
+  Future<void> _requestPermission(Permission permission, Function(bool) onResult) async {
+    final status = await permission.request();
+    onResult(status.isGranted);
+  }
+  Future<void> loadData() async {
+    final auth = context.read<AuthProvider>();
+    final uid = auth.userId;
+
+    if (uid == null) return;
+
+    final name = await userService.getFullName(uid);
+    final e = await userService.getEmail(uid);
+    setState(() {
+      userName = name ?? "Pengguna";
+      email = e ?? "Tidak ada";
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +132,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Jonto Amgis', // TODO: variable user name
+                          userName ?? "Loading...",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: screenWidth * 0.045,
@@ -98,7 +141,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          'jontoAmgis@gmail.com', // TODO: variable email
+                          email ?? "Loading...",
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.6),
                             fontSize: screenWidth * 0.035,
@@ -111,7 +154,7 @@ class _SettingScreenState extends State<SettingScreen> {
 
                   // Tombol edit
                   IconButton(
-                    onPressed: () {}, // TODO: Edit profile
+                    onPressed: () {context.push(AppRoutes.akun);},
                     icon: Icon(
                       Icons.mode_edit_outline_rounded,
                       color: Colors.white,
@@ -137,7 +180,15 @@ class _SettingScreenState extends State<SettingScreen> {
                 title: 'Notifications',
                 description: 'Mengizinkan aplikasi mengirim notifikasi',
                 value: notification,
-                onChanged: (v) => setState(() => notification = v),
+                onChanged: (val) {
+                  if (val == true) {
+                    _requestPermission(Permission.notification, (granted) {
+                    setState(() => notification = granted);
+                    });
+                    } else {
+                      openAppSettings();
+                    }
+                  },
               ),
               SizedBox(height: screenHeight * 0.02),
               _buildSettingItem(
@@ -146,7 +197,15 @@ class _SettingScreenState extends State<SettingScreen> {
                 title: 'Location',
                 description: 'Mengizinkan aplikasi mengakses lokasi anda',
                 value: location,
-                onChanged: (v) => setState(() => location = v),
+                onChanged: (val) {
+                  if (val == true) {
+                    _requestPermission(Permission.location, (granted) {
+                      setState(() => location = granted);
+                    });
+                  } else {
+                    openAppSettings();
+                  }
+                },
               ),
               SizedBox(height: screenHeight * 0.02),
               _buildSettingItem(
@@ -155,7 +214,15 @@ class _SettingScreenState extends State<SettingScreen> {
                 title: 'Camera',
                 description: 'Mengizinkan aplikasi mengakses kamera anda',
                 value: camera,
-                onChanged: (v) => setState(() => camera = v),
+                onChanged: (val) {
+                  if (val == true) {
+                    _requestPermission(Permission.camera, (granted) {
+                      setState(() => camera = granted);
+                    });
+                  } else {
+                    openAppSettings();
+                  }
+                },
               ),
 
               SizedBox(height: screenHeight * 0.03),
