@@ -35,12 +35,20 @@ dependencies:
   uuid: ^4.5.2
   intl: ^0.20.2
   chewie: ^1.13.0
+  flutter_local_notifications: ^19.5.0
+  firebase_messaging: ^16.0.4
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^5.0.0
+
+# flutter_icons:
+#   android: true
+#   ios: false
+#   image_path: assets/images/vigilanter_logo.webp
 
 flutter:
   uses-material-design: true
@@ -69,3 +77,18 @@ flutter:
           weight: 800
         - asset: fonts/Poppins/Poppins-Black.ttf
           weight: 900
+
+# flutter_icons:
+#   android: true
+#   ios: true
+#   image_path: "assets/images/vigilanter_logo.png"
+#   adaptive_icon_background: "#FFFFFF"
+#   adaptive_icon_foreground: "assets/images/vigilanter_logo.png"
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/vigilanter_logo.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/vigilanter_logo.png"

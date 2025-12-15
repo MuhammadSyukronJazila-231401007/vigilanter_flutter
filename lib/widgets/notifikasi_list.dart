@@ -116,7 +116,7 @@ class _NotificationListState extends State<NotifikasiList> {
                 Text(
                   notification.message,
                   style: TextStyle(
-                      fontSize: fontMessageSize, color: Colors.white, fontWeight: FontWeight.w200),
+                      fontSize: fontMessageSize, color: Colors.white, fontWeight: FontWeight.w400),
                 ),
                 SizedBox(height: padding * 0.35),
                 //Waktu kejadian

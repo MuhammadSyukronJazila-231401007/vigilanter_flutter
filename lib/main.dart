@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:media_store_plus/media_store_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
 import 'package:vigilanter_flutter/config/router.dart';
 import 'package:vigilanter_flutter/provider/app_state_provider.dart';
 import 'package:vigilanter_flutter/provider/auth_provider.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import './provider/laporan_provider.dart';
+import 'package:vigilanter_flutter/provider/laporan_provider.dart';
+import 'package:vigilanter_flutter/services/app_navigator.dart';
+import 'package:vigilanter_flutter/services/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,16 +23,19 @@ Future<void> main() async {
   // Init Firebase
   await Firebase.initializeApp();
 
-  // 🔥 Tambahkan ini (request izin sebelum runApp)
+  // Permission & MediaStore
   await _setupPermissionsAndMediaStore();
 
-  // Inisialisasi Format tanggal
+  // Format tanggal
   await initializeDateFormatting('id_ID', null);
+
+  // Init Notification (FCM)
+  await NotificationService.init();
 
   runApp(const App());
 }
 
-/// Fungsi untuk meminta izin & initialize MediaStore
+/// ================= PERMISSION =================
 Future<void> _setupPermissionsAndMediaStore() async {
   if (!Platform.isAndroid) return;
 
@@ -47,15 +53,17 @@ Future<void> _setupPermissionsAndMediaStore() async {
   await permissions.request();
 
   await MediaStore.ensureInitialized();
-  MediaStore.appFolder = "Vigilanter"; // optional
+  MediaStore.appFolder = "Vigilanter";
 }
 
+/// ================= APP ROOT =================
 class App extends StatelessWidget {
   const App({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final router = createRouter();
+    final router = createRouter(); 
+    AppNavigator.router = router;
 
     return MultiProvider(
       providers: [

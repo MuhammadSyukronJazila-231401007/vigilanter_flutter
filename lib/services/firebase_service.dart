@@ -78,6 +78,24 @@ class FirebaseService {
       return [];
     }
   }
+  
+  Stream<LaporanModel> streamById(String reportId) {
+    return FirebaseFirestore.instance
+        .collection('reports')
+        .doc(reportId)
+        .snapshots()
+        .map((doc) {
+          final data = doc.data();
+          if (data == null) {
+            throw Exception("Laporan tidak ditemukan");
+          }
+
+          return LaporanModel.fromFirestore(
+            doc.id,
+            data,
+          );
+        });
+  }
 
   Future<bool> hapusLaporan(String laporanId) async {
     try {

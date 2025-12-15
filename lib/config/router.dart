@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:vigilanter_flutter/models/laporan_model.dart';
 import 'package:vigilanter_flutter/provider/app_state_provider.dart';
+import 'package:vigilanter_flutter/screens/detail_laporan_screen.dart';
 import 'package:vigilanter_flutter/screens/notifikasi_screen.dart';
 import 'package:vigilanter_flutter/screens/video_player_screen.dart';
 import 'package:vigilanter_flutter/screens/video_record_screen.dart';
@@ -32,6 +33,7 @@ class AppRoutes {
   static const isilaporan = '/isilaporan';
   static const rekamVideo = '/rekam_video';
   static const videoPlayer = '/video_player';
+  static const detailLaporan = '/detail_laporan';
 }
 
 
@@ -110,6 +112,13 @@ GoRouter createRouter() {
           return VideoPlayerScreen(videoPath: videoPath);
         },
       ),
+      GoRoute(
+        path: AppRoutes.detailLaporan,
+        builder: (context, state) {
+          final reportId = state.extra as String;
+          return DetailLaporanScreen(reportId: reportId);
+        },
+      ),
 
 
       // Shell dengan bottom nav
@@ -138,7 +147,15 @@ GoRouter createRouter() {
             routes: [
               GoRoute(
                 path: AppRoutes.peta,
-                builder: (context, state) => PetaScreen(),
+                builder: (context, state) {
+                  final extra = state.extra as Map<String, dynamic>?;
+
+                  return PetaScreen(
+                    focusLat: extra?['lat'],
+                    focusLng: extra?['lng'],
+                    focusReportId: extra?['reportId'],
+                  );
+                },
               ),
             ],
           ),
