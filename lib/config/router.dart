@@ -9,6 +9,7 @@ import 'package:vigilanter_flutter/screens/notifikasi_screen.dart';
 import 'package:vigilanter_flutter/screens/video_player_screen.dart';
 import 'package:vigilanter_flutter/screens/video_record_screen.dart';
 
+import '../screens/account_screen.dart';
 import '../screens/isi_laporan_screen.dart';
 import '../screens/splash.dart';
 import '../screens/signin.dart';
@@ -27,6 +28,7 @@ class AppRoutes {
   static const deskripsiLaporan = '/deskripsi_laporan';
   static const riwayatLaporan = '/riwayat_laporan';
   static const setting = '/setting';
+  static const akun = '/akun';
   static const home = '/home';
   static const peta = '/peta';
   static const notifikasi = '/notifikasi';
@@ -82,6 +84,10 @@ GoRouter createRouter() {
       GoRoute(
         path: AppRoutes.setting,
         builder: (context, state) => const SettingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.akun,
+        builder: (context, state) => const AccountScreen(),
       ),
       GoRoute(
         path: AppRoutes.deskripsiLaporan,

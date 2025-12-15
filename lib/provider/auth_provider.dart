@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../auth/auth_service.dart';
@@ -140,15 +139,6 @@ class AuthProvider with ChangeNotifier {
     _authService.signOut,
     errorPrefix: 'Sign out gagal',
   );
-
-  Future<String> namaPengguna(String uid) async{
-
-    final nama = await FirebaseFirestore.instance
-        .collection("users")
-        .doc(uid)
-        .get();
-    return nama['nama_depan'] + " " + nama['nama_belakang'];
-  }
 
 
 
