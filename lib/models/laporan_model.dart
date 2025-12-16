@@ -47,6 +47,43 @@ class LaporanModel {
     );
   }
 
+  LaporanModel copyDes({
+    String? deskripsi,
+  }) {
+    return LaporanModel(
+      id: id,
+      deskripsi: deskripsi ?? this.deskripsi,
+      jenisLaporan: jenisLaporan,
+      latitude: latitude,
+      longitude: longitude,
+      namaKejahatan: namaKejahatan,
+      status: status,
+      tempat: tempat,
+      userId: userId,
+      videoDownloadUrl: videoDownloadUrl,
+      videoRealPath: videoRealPath,
+      waktu: waktu,
+    );
+  }
+  LaporanModel copyNama({
+    String? namaKejahatan,
+  }) {
+    return LaporanModel(
+      id: id,
+      deskripsi: deskripsi,
+      jenisLaporan: jenisLaporan,
+      latitude: latitude,
+      longitude: longitude,
+      namaKejahatan: namaKejahatan ?? this.namaKejahatan,
+      status: status,
+      tempat: tempat,
+      userId: userId,
+      videoDownloadUrl: videoDownloadUrl,
+      videoRealPath: videoRealPath,
+      waktu: waktu,
+    );
+  }
+
   factory LaporanModel.fromFirestore(String docId, Map<String, dynamic> data) {
     return LaporanModel(
       id: docId,

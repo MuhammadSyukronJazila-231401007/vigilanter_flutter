@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -8,16 +9,67 @@ import 'package:vigilanter_flutter/widgets/video_player_widget.dart';
 
 import '../theme/app_colors.dart';
 
-class DetailLaporan extends StatelessWidget {
+class DetailLaporan extends StatefulWidget {
   final LaporanModel laporan;
 
   const DetailLaporan({super.key, required this.laporan});
+
+  @override
+  _DetailLaporanState createState() => _DetailLaporanState();
+}
+class _DetailLaporanState extends State<DetailLaporan> {
+  TextEditingController judul = TextEditingController();
+  TextEditingController deskripsi = TextEditingController();
+  bool _isReadOnly = true;
+  final FocusNode _focusNode = FocusNode();
+  Future<void> _saveDescToFirestore(String value) async {
+    await FirebaseFirestore.instance
+        .collection('reports')
+        .doc(widget.laporan.id)
+        .update({
+      'deskripsi': value,
+    });
+    // UPDATE DATA LOKAL
+    context.read<LaporanProvider>().updateDeskripsi(
+      widget.laporan.id,
+      value,
+    );
+  }
+  Future<void> _saveNamaToFirestore(String value) async {
+    await FirebaseFirestore.instance
+        .collection('reports')
+        .doc(widget.laporan.id)
+        .update({
+      'nama_kejahatan': value,
+    });
+    // UPDATE DATA LOKAL
+    context.read<LaporanProvider>().updateNama(
+      widget.laporan.id,
+      value,
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    judul =
+        TextEditingController(text: widget.laporan.namaKejahatan);
+    deskripsi =
+        TextEditingController(text: widget.laporan.deskripsi);
+  }
+  @override
+  void dispose() {
+    deskripsi.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final double baseFont = screenWidth * 0.035;
+    final laporan = widget.laporan;
 
     final partWaktu = laporan.waktu.split('(');
 
@@ -65,13 +117,33 @@ class DetailLaporan extends StatelessWidget {
                   SizedBox(height: screenHeight * 0.025),
 
                   // Nama Kejahatan
-                  Text(
-                    laporan.namaKejahatan,
+                  isDiajukan ?
+                  TextField(
+                    controller: judul,
+                    focusNode: _focusNode,
                     style: TextStyle(
                       fontSize: screenWidth * 0.065,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
+                    onSubmitted: (value) async {
+                      await _saveNamaToFirestore(value);
+                      _focusNode.unfocus();
+
+                    },
+
+                    // Klik di luar / selesai edit
+                    onEditingComplete: () async {
+                      await _saveNamaToFirestore(judul.text);
+                      _focusNode.unfocus();
+                    },
+                  ) : Text(
+                      laporan.namaKejahatan,
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.065,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                   ),
                   SizedBox(height: screenHeight * 0.02),
 
@@ -259,24 +331,47 @@ class DetailLaporan extends StatelessWidget {
                           color: Colors.white,
                         ),
                       ),
+                      isDiajukan ?
                       IconButton(
-                        onPressed: () {}, // TODO: Edit function
                         icon: Icon(
                           Icons.mode_edit_outlined,
                           color: Colors.white,
                           size: screenWidth * 0.06, // lebih besar & proporsional
                         ),
-                      )
+                        onPressed: (){
+                          setState(() => _isReadOnly = false);
+
+                          // Paksa fokus + buka keyboard
+                          Future.delayed(const Duration(milliseconds: 100), () {
+                            _focusNode.requestFocus();
+                          });
+                        },
+                      ) :  SizedBox(width: screenWidth * 0.1,)
                     ],
                   ),
                   SizedBox(height: screenHeight * 0.01),
-                  Text(
-                    laporan.deskripsi,
+                  TextField(
+                    controller: deskripsi,
+                    focusNode: _focusNode,
+                    readOnly: _isReadOnly,
                     style: TextStyle(
                       color: Colors.white70,
                       height: 1.5,
                       fontSize: baseFont,
                     ),
+                    onSubmitted: (value) async {
+                      setState(() => _isReadOnly = true);
+                      await _saveDescToFirestore(value);
+                      _focusNode.unfocus();
+
+                    },
+
+                    // Klik di luar / selesai edit
+                    onEditingComplete: () async {
+                      setState(() => _isReadOnly = true);
+                      await _saveDescToFirestore(deskripsi.text);
+                      _focusNode.unfocus();
+                    },
                   ),
                   SizedBox(height: screenHeight * 0.025),
 

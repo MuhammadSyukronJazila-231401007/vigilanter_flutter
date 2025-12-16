@@ -53,4 +53,20 @@ class LaporanProvider with ChangeNotifier {
 
     notifyListeners();
   }
+  void updateDeskripsi(String id, String deskripsi) {
+    final index = laporanTerkirim.indexWhere((e) => e.id == id);
+    if (index != -1) {
+      laporanTerkirim[index] =
+          laporanTerkirim[index].copyDes(deskripsi: deskripsi);
+      notifyListeners();
+    }
+  }
+  void updateNama(String id, String nama) {
+    final index = laporanTerkirim.indexWhere((e) => e.id == id);
+    if (index != -1) {
+      laporanTerkirim[index] =
+          laporanTerkirim[index].copyNama(namaKejahatan: nama);
+      notifyListeners();
+    }
+  }
 }
