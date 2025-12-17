@@ -66,7 +66,6 @@ Aplikasi ini dikembangkan sebagai **Proyek Akhir** dan memanfaatkan layanan **Fi
 ### Frontend
 - **Flutter**
 - State Management: **Provider**
-- UI responsif dan dinamis
 
 ### Backend (Cloud)
 - **Firebase Firestore** → penyimpanan data laporan
@@ -114,17 +113,7 @@ Aplikasi ini dikembangkan sebagai **Proyek Akhir** dan memanfaatkan layanan **Fi
 
 ---
 
-## 📌 Status Pengembangan
 
-✅ Core features selesai  
-✅ UX upload background diterapkan  
-✅ Notifikasi & peta terintegrasi  
-🔜 Pengembangan lanjutan (opsional):
-- Kompresi video otomatis
-- Riwayat laporan user
-- Mode offline draft
-
----
 
 ## 👨‍💻 Pengembang
 
