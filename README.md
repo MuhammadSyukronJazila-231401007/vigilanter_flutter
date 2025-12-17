@@ -1,4 +1,7 @@
-<img src="assets/images/vigilanter_logo.png" alt="Logo Vigilanter"/> 
+<div align="center">
+  <img src="assets/images/vigilanter_logo.png" alt="Logo Vigilanter" height="450" />
+</div>
+
 
 # 🚨 Vigilanter
 
