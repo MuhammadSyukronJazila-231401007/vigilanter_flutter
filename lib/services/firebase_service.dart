@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:vigilanter_flutter/models/notification_model.dart';
+import 'package:vigilanter_flutter/state/upload_laporan_state.dart';
 import '../models/laporan_model.dart';
 
 class FirebaseService {
@@ -25,6 +27,33 @@ class FirebaseService {
       return null;
     }
   }
+
+  Future<String?> uploadVideoWithProgress(
+    File file,
+    String userId,
+    UploadLaporanState uploadState,
+  ) async {
+    try {
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child('laporan/$userId/${DateTime.now().millisecondsSinceEpoch}.mp4');
+  
+      final uploadTask = ref.putFile(file);
+  
+      uploadTask.snapshotEvents.listen((event) {
+        final progress =
+            event.bytesTransferred / event.totalBytes;
+        uploadState.updateProgress(progress);
+      });
+  
+      final snapshot = await uploadTask;
+      return await snapshot.ref.getDownloadURL();
+    } catch (e) {
+      uploadState.error(e.toString());
+      return null;
+    }
+  }
+
 
   /// Kirim laporan lengkap ke Firestore
   Future<bool> sendLaporan({
@@ -141,6 +170,22 @@ class FirebaseService {
     } catch (_) {
       return null;
     }
+  }
+
+  Stream<List<NotificationItem>> getNotifications() {
+    return _firestore
+        .collection('notifications')
+        .orderBy('created_at', descending: true)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs
+              .map((doc) => NotificationItem.fromFirestore(doc))
+              .toList();
+        });
+  }
+
+  Future<void> deleteNotification(String id) {
+    return _firestore.collection('notifications').doc(id).delete();
   }
 
 }

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:vigilanter_flutter/models/laporan_model.dart';
 import 'package:vigilanter_flutter/provider/app_state_provider.dart';
@@ -153,12 +154,12 @@ GoRouter createRouter() {
             routes: [
               GoRoute(
                 path: AppRoutes.peta,
-                builder: (context, state) {
+                builder: (context, state) {             
                   final extra = state.extra as Map<String, dynamic>?;
+                  final LatLng? latLng = extra?['latLng'] as LatLng?;
 
                   return PetaScreen(
-                    focusLat: extra?['lat'],
-                    focusLng: extra?['lng'],
+                    focusLatLng: latLng, 
                     focusReportId: extra?['reportId'],
                   );
                 },

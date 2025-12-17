@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:vigilanter_flutter/models/report_summary.dart';
@@ -34,6 +35,7 @@ class _PetaPageState extends State<PetaScreen> {
   final _reportMapService = ReportMapService();
   StreamSubscription? _markerSub;
   bool _fromNotification = false;
+  Key _mapKey = UniqueKey();
 
   LatLng _currentPos = const LatLng(3.567261, 98.650062);
   Set<Marker> markers = {};
@@ -52,8 +54,6 @@ class _PetaPageState extends State<PetaScreen> {
     } else if (widget.focusLat != null && widget.focusLng != null) {
       _currentPos = LatLng(widget.focusLat!, widget.focusLng!);
     }
-
-    _loadUserLocation();
 
     _markerSub =
         _reportMapService.listenMarkers(_onMarkerTap).listen((m) {
@@ -95,7 +95,7 @@ class _PetaPageState extends State<PetaScreen> {
   }
 
   /// ===================== AMBIL LOKASI USER =====================
-    Future<void> _loadUserLocation() async {
+  Future<void> _loadUserLocation() async {
     Position? position = await locationService.getPosition();
     if (position == null) return;
 
@@ -118,10 +118,10 @@ class _PetaPageState extends State<PetaScreen> {
       );
     });
 
-    /// ⛔ JANGAN override kamera kalau dari notifikasi
+    /// HANYA override _currentPos dan animasi kamera kalau BUKAN dari notifikasi
     if (_fromNotification) return;
 
-    _currentPos = userPos;
+    _currentPos = userPos; // <-- Hanya update jika bukan dari notifikasi
 
     if (mapController != null) {
       mapController!.animateCamera(
@@ -130,7 +130,66 @@ class _PetaPageState extends State<PetaScreen> {
     }
   }
 
+  Future<void> _searchLocation(String query) async {
+    if (query.isEmpty) return;
+    debugPrint(query);
+    try {
+      final locations = await locationFromAddress(query);
+  
+      if (locations.isEmpty) return;
+      debugPrint(locations.first.latitude.toString());
+  
+      final loc = locations.first;
+      final target = LatLng(loc.latitude, loc.longitude);
+  
+      setState(() {
+        _currentPos = target;
+      });
+  
+      mapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(target, 16),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Lokasi tidak ditemukan"),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.only(
+            bottom: 30, 
+            left: 16,
+            right: 16,
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
 
+  void _refreshMap() {
+    setState(() {
+      // reset map controller
+      mapController?.dispose();
+      mapController = null;
+
+      // kosongkan marker (akan di-load ulang dari stream)
+      markers.clear();
+
+      // paksa GoogleMap rebuild total
+      _mapKey = UniqueKey();
+    });
+    _markerSub =
+        _reportMapService.listenMarkers(_onMarkerTap).listen((m) {
+      setState(() {
+        markers.addAll(m);
+      });
+    });
+
+    // trigger ulang ambil lokasi user (jika bukan dari notifikasi)
+    if (!_fromNotification) {
+      _loadUserLocation();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,6 +201,7 @@ class _PetaPageState extends State<PetaScreen> {
       body: Stack(
         children: [
           GoogleMap(
+            key: _mapKey,
             initialCameraPosition: CameraPosition(
               target: _currentPos,
               zoom: 16,
@@ -149,11 +209,15 @@ class _PetaPageState extends State<PetaScreen> {
             markers: markers,
             myLocationEnabled: false,
             onMapCreated: (controller) {
-              mapController = controller;
-
-              controller.animateCamera(
-                CameraUpdate.newLatLngZoom(_currentPos, 16),
-              );
+            mapController = controller;
+              if (_fromNotification) {
+                // Jika dari notifikasi, animasikan ke posisi fokus
+                controller.animateCamera(
+                  CameraUpdate.newLatLngZoom(_currentPos, 16),
+                );
+              } else {
+                _loadUserLocation();
+              }
             },
           ),
 
@@ -179,6 +243,8 @@ class _PetaPageState extends State<PetaScreen> {
                   Expanded(
                     child: TextField(
                       controller: cariLokasi,
+                      textInputAction: TextInputAction.search,
+                      onSubmitted: _searchLocation,
                       style: TextStyle(
                           color:
                               Colors.white.withValues(alpha: 0.4)),
@@ -233,11 +299,17 @@ class _PetaPageState extends State<PetaScreen> {
                             ),
                           );
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
+                            SnackBar(
                               content:
-                                  Text("Koordinat disalin ke clipboard!"),
+                                  const Text("Koordinat disalin ke clipboard!"),
                               backgroundColor: Colors.green,
-                              duration: Duration(seconds: 2),
+                               behavior: SnackBarBehavior.floating,
+                               margin: EdgeInsets.only(
+                                 bottom: screenHeight * 0.025, 
+                                 left: 16,
+                                 right: 16,
+                               ),
+                               duration: const Duration(seconds: 2),
                             ),
                           );
                         },
@@ -267,7 +339,7 @@ class _PetaPageState extends State<PetaScreen> {
                           color: Colors.white),
                       SizedBox(width: screenWidth * 0.015),
                       Text(
-                        "Titik Rawans",
+                        "Titik Rawan",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: screenWidth * 0.035,
@@ -278,6 +350,18 @@ class _PetaPageState extends State<PetaScreen> {
                   ),
                 )
               ],
+            ),
+          ),
+
+          /// --------------------- TOMBOL REFRESH MAP ---------------------
+          Positioned(
+            bottom: screenHeight * 0.12,
+            right: screenWidth * 0.04,
+            child: FloatingActionButton(
+              heroTag: "refresh_map",
+              backgroundColor: const Color(0xFF1A1C3F),
+              onPressed: _refreshMap,
+              child: const Icon(Icons.refresh, color: Colors.white),
             ),
           ),
         ],

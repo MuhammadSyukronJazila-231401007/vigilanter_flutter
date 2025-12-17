@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:vigilanter_flutter/state/upload_laporan_state.dart';
 import 'firebase_service.dart';
 import 'location_service.dart';
 import 'package:intl/intl.dart';
@@ -17,6 +18,7 @@ class LaporanService {
     required String jenisLaporan,
     required String videoRealPath,
     required BuildContext context,
+    required UploadLaporanState uploadState,
   }) async {
     try {
       _showLoading(context);
@@ -36,45 +38,61 @@ class LaporanService {
         _showError(context, "File video tidak ditemukan");
         return false;
       }
+      
+      uploadState.start();
 
-      // 3. Upload video
-      final videoUrl = await _firebase.uploadVideo(file, userId);
+      final videoUrl = await _firebase.uploadVideoWithProgress(
+        file,
+        userId,
+        uploadState,
+      );
+
       if (videoUrl == null) {
-        _close(context);
-        _showError(context, "Upload video gagal");
+        uploadState.error("Upload video gagal");
         return false;
       }
 
       // 4. Format waktu
       final formattedWaktu = getFormattedTime(DateTime.now());
 
-      // 5. Kirim laporan ke Firestore
-      final success = await _firebase.sendLaporan(
-        userId: userId,
-        namaKejahatan: namaKejahatan,
-        deskripsi: deskripsi,
-        jenisLaporan: jenisLaporan,
-        videoPath: videoUrl,
-        videoRealPath: videoRealPath,
-        latitude: locationData['latitude'],
-        longitude: locationData['longitude'],
-        tempat: locationData['tempat'],
-        waktuFormatted: formattedWaktu,
-      );
+      // 5. Kirim laporan ke Firestore            
+      try {
+        debugPrint("Mulai mengirim laporan..."); 
 
-      _close(context);
+        final success = await _firebase.sendLaporan(
+          userId: userId,
+          namaKejahatan: namaKejahatan,
+          deskripsi: deskripsi,
+          jenisLaporan: jenisLaporan,
+          videoPath: videoUrl,
+          videoRealPath: videoRealPath,
+          latitude: locationData['latitude'],
+          longitude: locationData['longitude'],
+          tempat: locationData['tempat'],
+          waktuFormatted: formattedWaktu,
+        );
 
-      if (success) {
-        _showSuccess(context);
-      } else {
-        _showError(context, "Gagal mengirim laporan");
+        debugPrint("Selesai sendLaporan, hasil: $success"); 
+
+        if (success) {
+          // Update State UI
+          uploadState.success();
+          return true;
+        } else {
+          debugPrint("Laporan gagal (return false)");
+          uploadState.error("Gagal mengirim laporan (Server menolak)");
+          return false;
+        }
+
+      } catch (e) {
+        // Ini akan menangkap jika ada crash di dalam sendLaporan
+        debugPrint("ERROR CRASH: $e");
+        uploadState.error("Terjadi kesalahan: $e");
+        return false;
       }
 
-      return success;
-
     } catch (e) {
-      _close(context);
-      _showError(context, "Error: $e");
+      uploadState.error("Terjadi kesalahan: $e");
       return false;
     }
   }
@@ -112,20 +130,20 @@ class LaporanService {
     if (Navigator.canPop(context)) Navigator.pop(context);
   }
 
-  void _showSuccess(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text("Laporan berhasil dikirim!"),
-        backgroundColor: Colors.green,
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.only(
-          bottom: 70, // Naikkan snackBar agar tidak tertutup bottom nav
-          left: 16,
-          right: 16,
-        ),
-      ),
-    );
-  }
+  // void _showSuccess(BuildContext context) {
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: const Text("Laporan berhasil dikirim!"),
+  //       backgroundColor: Colors.green,
+  //       behavior: SnackBarBehavior.floating,
+  //       margin: const EdgeInsets.only(
+  //         bottom: 70, // Naikkan snackBar agar tidak tertutup bottom nav
+  //         left: 16,
+  //         right: 16,
+  //       ),
+  //     ),
+  //   );
+  // }
   
   void _showError(BuildContext context, String msg) {
     ScaffoldMessenger.of(context).showSnackBar(

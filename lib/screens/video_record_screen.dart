@@ -116,8 +116,6 @@ class _VideoRecordScreenState extends State<VideoRecordScreen> {
   }
 
 
-  // --- GANTI DENGAN INI ---
-
   // Stop and return file
   Future<void> _stopRecording() async {
     if (_controller == null || !_controller!.value.isRecordingVideo) return;
@@ -152,8 +150,8 @@ class _VideoRecordScreenState extends State<VideoRecordScreen> {
   Future<SaveInfo?> _saveToGallery(String tempFilePath) async {
     final mediaStore = MediaStore();
 
-    // pastikan appFolder sudah di-set di main.dart (atau set di sini jika perlu)
-    // MediaStore.appFolder = "Vigilanter"; // (opsional) bila belum diatur di main()
+    // pastikan appFolder sudah di-set di main.dart 
+    // MediaStore.appFolder = "Vigilanter";
 
     // Pilih dirName yang sesuai. Untuk video biasanya pakai DirName.movies
     // Jika ingin masuk Movies/Vigilanter -> relativePath: "Vigilanter"

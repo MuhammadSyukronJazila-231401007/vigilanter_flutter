@@ -28,25 +28,43 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   }
 
   Future<void> initVideo() async {
-    // 1. Coba pakai video lokal
-    if (widget.localPath != null) {
+    // PRIORITAS: content:// (video lokal dari galeri)
+    if (widget.localPath != null &&
+        widget.localPath!.startsWith('content://')) {
       try {
-        final file = File.fromUri(Uri.parse(widget.localPath!));
+        _controller = VideoPlayerController.contentUri(
+          Uri.parse(widget.localPath!),
+        );
+        debugPrint("Video lokal (content uri)");
+      } catch (e) {
+        debugPrint("Gagal buka content uri: $e");
+      }
+    }
+  
+    // FILE PATH biasa (kalau suatu saat kamu pakai path fisik)
+    if (_controller == null &&
+        widget.localPath != null &&
+        !widget.localPath!.startsWith('content://')) {
+      try {
+        final file = File(widget.localPath!);
         if (await file.exists()) {
           _controller = VideoPlayerController.file(file);
+          debugPrint("Video lokal (file)");
         }
       } catch (_) {}
     }
-
-    // 2. Jika gagal → gunakan URL
+  
+    // TERAKHIR: URL Firebase
     if (_controller == null && widget.url != null) {
-      _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url!));
+      _controller =
+          VideoPlayerController.networkUrl(Uri.parse(widget.url!));
+      debugPrint("Video firebase");
     }
-
+  
     if (_controller == null) return;
-
+  
     await _controller!.initialize();
-
+  
     _chewie = ChewieController(
       videoPlayerController: _controller!,
       autoPlay: false,
@@ -54,9 +72,10 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       allowPlaybackSpeedChanging: true,
       allowFullScreen: true,
     );
-
+  
     if (mounted) setState(() {});
   }
+
 
   @override
   void dispose() {

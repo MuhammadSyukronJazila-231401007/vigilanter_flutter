@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:vigilanter_flutter/config/router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vigilanter_flutter/services/laporan_service.dart';
 import 'package:vigilanter_flutter/services/location_service.dart';
+import 'package:vigilanter_flutter/state/upload_laporan_state.dart';
 import '../theme/app_colors.dart';
 
 class IsiLaporanScreen extends StatefulWidget {
@@ -416,23 +418,23 @@ class _IsiLaporanScreenState extends State<IsiLaporanScreen> {
                       ),
                      onPressed: isFormValid && !_isSubmitting
                         ? () async {
-                            setState(() => _isSubmitting = true);
+                            final uploadState =
+                                context.read<UploadLaporanState>();
 
-                            final success = await laporanService.kirimLaporan(
+                            // LANGSUNG KE HOME
+                            context.go(AppRoutes.home);
+
+                            // JALANKAN UPLOAD TANPA NUNGGU
+                            laporanService.kirimLaporan(
                               userId: FirebaseAuth.instance.currentUser?.uid ?? 'anonymous',
                               namaKejahatan: namaKejahatanController.text.trim(),
                               deskripsi: deskripsiController.text.trim(),
                               jenisLaporan: selectedLaporan,
-                              videoRealPath: widget.videoPath,   // content:// URI atau file path
+                              videoRealPath: widget.videoPath,
                               context: context,
+                              uploadState: uploadState,
                             );
-
-                            setState(() => _isSubmitting = false);
-
-                            if (success && mounted) {
-                              context.go(AppRoutes.home);  // kembali ke home
-                            }
-                        }
+                          }
                         : null,
                       child: _isSubmitting 
                         ? const SizedBox(

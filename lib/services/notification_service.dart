@@ -67,7 +67,7 @@ class NotificationService {
         notif.body,
         const NotificationDetails(
           android: AndroidNotificationDetails(
-            'vigilanter_alert',
+            'vigilanter',
             'Peringatan Kejahatan',
             channelDescription: 'Notifikasi laporan kejahatan valid',
             importance: Importance.max,

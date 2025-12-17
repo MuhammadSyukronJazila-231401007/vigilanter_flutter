@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_colors.dart';
 
 class EmergencyPopup extends StatelessWidget {
@@ -220,7 +221,6 @@ class EmergencyPopup extends StatelessWidget {
   }
 
   void _makePhoneCall(String number) {
-    // TODO: implementasikan pakai url_launcher
-    // launchUrl(Uri.parse('tel:$number'));
+    launchUrl(Uri.parse('tel:$number'));
   }
 }

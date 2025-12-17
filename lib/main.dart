@@ -12,6 +12,7 @@ import 'package:vigilanter_flutter/provider/auth_provider.dart';
 import 'package:vigilanter_flutter/provider/laporan_provider.dart';
 import 'package:vigilanter_flutter/services/app_navigator.dart';
 import 'package:vigilanter_flutter/services/notification_service.dart';
+import 'package:vigilanter_flutter/state/upload_laporan_state.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -70,6 +71,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AppStateProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => LaporanProvider()),
+        ChangeNotifierProvider(create: (_) => UploadLaporanState()),
       ],
       child: MaterialApp.router(
         title: 'Vigilanter',

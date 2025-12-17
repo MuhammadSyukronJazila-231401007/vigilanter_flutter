@@ -30,6 +30,18 @@ exports.broadcastNewReport = onDocumentCreated(
     };
 
     await admin.messaging().send(message);
+
+    // SIMPAN NOTIF KE FIRESTORE
+    await admin.firestore().collection("notifications").add({
+      title: message.notification.title,
+      message: message.notification.body,
+      type: message.data.type,
+      report_id: message.data.report_id,
+      tempat: message.data.tempat,
+      latitude: message.data.latitude,
+      longitude: message.data.longitude,
+      created_at: admin.firestore.FieldValue.serverTimestamp(),
+    });
   }
 );
 
@@ -67,5 +79,17 @@ exports.notifyReportAccepted = onDocumentUpdated(
     };
 
     await admin.messaging().send(message);
+
+    // SIMPAN NOTIF KE FIRESTORE
+    await admin.firestore().collection("notifications").add({
+      title: message.notification.title,
+      message: message.notification.body,
+      type: message.data.type,
+      report_id: message.data.report_id,
+      tempat: message.data.tempat,
+      latitude: message.data.latitude,
+      longitude: message.data.longitude,
+      created_at: admin.firestore.FieldValue.serverTimestamp(),
+    });
   }
 );
